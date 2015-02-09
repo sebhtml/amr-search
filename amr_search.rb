@@ -66,11 +66,30 @@ i = 0
 content = File.read(output)
 csv = CSV.parse(content, {:headers => false, :col_sep => "\t"})
 
+probe_hits = Hash.new
+
 csv.each do |row|
     #STDERR.puts i.to_s + " ---> " + row.size.to_s + " " + row.to_s
-    STDERR.puts "Found a probe hit: " + row[1]
+    #STDERR.puts "Found a probe hit: " + row[1]
+
+    probe_name = row[1]
+
+    if probe_hits[probe_name].nil?
+        probe_hits[probe_name] = 0
+    end
+
+    probe_hits[probe_name] += 1
 
     i += 1
+end
+
+sorted_probes = probe_hits.to_a.sort { |x, y| y[1] <=> x[1] }
+
+sorted_probes.each do |pair|
+    probe_name = pair[0]
+    read_count = pair[1]
+
+    puts read_count.to_s + " " + probe_name
 end
 
 if purge_files
