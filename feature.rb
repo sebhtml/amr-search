@@ -123,8 +123,40 @@ class Feature
         # 278-1204blaPER-2927
 
         token = token.split("-", 2)[1]
+        i = 0
+        while i < token.length and is_numeric? token[i]
+            i += 1
+        end
 
-        @gene_name = "NULL " + token
+        token = token[i..token.length - 1]
+
+        # M55547:2314-3138blaOXA-9825_17_51 ---> NULL blaOXA-9
+        # X02588:331-1113ant(9)-Ia783_261_299 ---> NULL ant(9)-Ia
+        # AF189721:274-1149blaCTX-M-8876_577_611 ---> NULL blaCTX-M-8
+
+        last_dash_position = token.length - 1
+        while last_dash_position >= 0 and token[last_dash_position] != '-'
+            last_dash_position -= 1
+        end
+
+        # advance the cursor
+        # blaCTX-M- will advance to yield blaCTX-M-8
+        # if the token ends with '-', the cursor needs to advance by at least 1
+        last_dash_position += 1
+        i = last_dash_position
+
+        while (i == last_dash_position or not is_numeric? token[i]) and i < token.length
+            #puts "token = " + token + " char at i = " + token[i]
+            i += 1
+        end
+
+        if i != last_dash_position and is_numeric? token[i]
+            i -= 1
+        end
+        token = token[0..i]
+
+        @gene_name = "" + token
+
         true
     end
 end
