@@ -24,6 +24,8 @@ if ARGV.size != 1
 end
 
 purge_files = false
+reuse_files = false
+
 query=ARGV[0]
 
 database="/bigdata/seb/amr-search/ARDM_v2_and_v3.fasta"
@@ -32,7 +34,7 @@ database="/bigdata/seb/amr-search/ARDM_v2_and_v3.fasta"
 
 fasta_query = query + ".fasta"
 
-unless File.exists? fasta_query
+if not File.exists? fasta_query or not reuse_files
     #STDERR.puts "Running #{command}"
     command = "time cat #{query} | seqtk seq -A - > #{fasta_query}"
     success = Kernel.system(command)
@@ -46,7 +48,7 @@ end
 
 output = query + ".csv"
 
-unless File.exists? output
+if not File.exists? output or not reuse_files
     Kernel.system("
     vsearch \
     --minseqlength 24 \
