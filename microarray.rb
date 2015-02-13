@@ -15,9 +15,9 @@ class Microarray
             next if row[0] == 'Feature'
             next if row[0] == 'Feature #'
 
-            #puts row
+            # puts row.to_s
 
-            feature = Feature.new row[1], row[2], row[3], row[4]
+            feature = Feature.new row[0], row[1], row[2], row[3]
 
             @features.push feature
         end
@@ -25,5 +25,15 @@ class Microarray
 
     def feature_count
         @features.size
+    end
+
+    def print_genes
+
+        @features.each do |feature|
+            probe_name = feature.probe_name
+            gene = feature.gene
+
+            puts probe_name + " ---> " + gene
+        end
     end
 end
