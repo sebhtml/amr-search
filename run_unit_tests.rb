@@ -37,5 +37,6 @@ end
 
 suite = Test::Unit::TestSuite.new "Test 1"
 suite << MyTestCase.new("load_microarray_v2")
+suite << MyTestCase.new("load_microarray_v3")
 
 Test::Unit::UI::Console::TestRunner.run(suite)
