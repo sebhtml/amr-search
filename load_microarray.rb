@@ -12,4 +12,4 @@ file = ARGV.first
 a = Microarray.new
 a.load_from_file file
 
-a.print_genes
+#a.print_genes
