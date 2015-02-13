@@ -19,6 +19,7 @@ class Feature
         if detect_gene_with_pipe
         elsif detect_gene_with_parenthesis
         elsif detect_gene_with_number
+        elsif detect_gene_with_number_two_dashes
         end
 
         @gene_name
@@ -111,6 +112,19 @@ class Feature
         token = token[0..last]
         @gene_name = token
 
+        true
+    end
+
+    # parse this:
+    # X93314:278-1204blaPER-2927_689_723
+    def detect_gene_with_number_two_dashes
+        token = @probe_name.split(":")[1].split("_")[0]
+
+        # 278-1204blaPER-2927
+
+        token = token.split("-", 2)[1]
+
+        @gene_name = "NULL " + token
         true
     end
 end
