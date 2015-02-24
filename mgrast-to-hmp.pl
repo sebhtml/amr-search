@@ -40,6 +40,10 @@ print STDERR join "\t", "ERROR:", $get->code, $get->status_line;
 my $res = $json->decode( $get->content );
 my $mglist = $res->{metagenomes} ;
 
+my $size = scalar @$mglist;
+
+print "Project $project has $size metagenomes.";
+
 # print STDERR $mglist, "\n";
 
 # print Dumper $res ;
