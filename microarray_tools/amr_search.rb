@@ -51,8 +51,7 @@ output = query + ".csv"
 
 aligner = "vsearch"
 
-command = "
-    #{aligner} \
+command = "#{aligner} \
     --minseqlength 24 \
     --usearch_global #{fasta_query} \
     --db #{database} \
@@ -62,8 +61,16 @@ command = "
     --maxaccepts 4 \
     "
 
+# use IO.popen to discard the stuff printed to stdout.
+# \see http://ruby.bastardsbook.com/chapters/external-programs/
+#
 if not File.exists? output or not reuse_files
-    Kernel.system(command)
+    IO.popen(command, "r+") do |pipe|
+        pipe_output = pipe.read
+        STDERR.puts pipe_output
+    end
+
+    #Kernel.system(command)
 end
 
 #STDERR.puts("Output: #{query}.csv")
