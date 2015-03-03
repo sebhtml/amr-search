@@ -1,6 +1,7 @@
 #!/usr/bin/env ruby
 
 require 'csv'
+require 'json'
 
 # Dependencies:
 #
@@ -48,9 +49,10 @@ end
 
 output = query + ".csv"
 
-if not File.exists? output or not reuse_files
-    Kernel.system("
-    vsearch \
+aligner = "vsearch"
+
+command = "
+    #{aligner} \
     --minseqlength 24 \
     --usearch_global #{fasta_query} \
     --db #{database} \
@@ -58,7 +60,10 @@ if not File.exists? output or not reuse_files
     --target_cov 0.90 \
     --blast6out #{output} \
     --maxaccepts 4 \
-    ")
+    "
+
+if not File.exists? output or not reuse_files
+    Kernel.system(command)
 end
 
 #STDERR.puts("Output: #{query}.csv")
@@ -87,12 +92,22 @@ end
 
 sorted_probes = probe_hits.to_a.sort { |x, y| y[1] <=> x[1] }
 
+result = {}
+
+result[:hits] = {}
+result[:aligner] = aligner
+result[:database] = database
+result[:query] = fasta_query
+result[:command] = command
+
 sorted_probes.each do |pair|
     probe_name = pair[0]
     read_count = pair[1]
 
-    puts read_count.to_s + " " + probe_name
+    result[:hits][probe_name.to_sym] = read_count
 end
+
+puts result.to_json
 
 if purge_files
     Kernel.system("rm #{fasta_query}")
