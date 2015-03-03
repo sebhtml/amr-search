@@ -1,7 +1,11 @@
 
 import requests
 import os
+import xml.etree.ElementTree
+import json
+import logging
 
+import xmltodict
 
 class SRAFetcher:
     """
@@ -156,3 +160,57 @@ class MetagenomeProject:
             output.close()
 
 
+class MgRastMetagenome:
+    """
+    A wrapper around a MG-RAST metagenome
+    """
+    def __init__(self, json_file):
+        with open(json_file) as f:
+            json_data = json.loads(f.read())
+            self.id = json_data["id"]
+            self.sequencing_run = json_data["name"]
+
+    def get_identifier(self):
+        return self.id
+
+    def get_sequencing_run(self):
+        return self.sequencing_run
+
+
+class EbiSraRun:
+    """
+    A class to read XML run files from EBI SRA.
+    """
+    def __init__(self, file):
+        with open(file) as f:
+            content = f.read()
+            data = xmltodict.parse(content)
+            
+            identifier = data["ROOT"]["RUN"]["IDENTIFIERS"]["PRIMARY_ID"]
+
+            self.identifier = identifier
+            sample = -1
+
+            logging.debug("file: {} run: {} sample: {}".format(file, identifier, sample))
+
+            links = data["ROOT"]["RUN"]["RUN_LINKS"]["RUN_LINK"]
+
+            #print(links)
+
+            for link in links:
+
+                #print(link)
+
+                database = link["XREF_LINK"]["DB"]
+                database_identifier = link["XREF_LINK"]["ID"]
+
+                logging.debug("db {} id {}".format(database, database_identifier))
+
+                if database == "ENA-SAMPLE":
+                    self.sample = database_identifier
+
+    def get_identifier(self):
+        return self.identifier
+
+    def get_sample_name(self):
+        return self.sample

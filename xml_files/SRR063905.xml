@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ROOT request="download accessions">
+<RUN alias="HUMAN METAGENOME 700110419-RL-01-801 Experiment GIWMCLJ" run_date="2010-08-09T20:38:00Z" center_name="JCVI" run_center="JCVI" accession="SRR063905" broker_name="NCBI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+     <IDENTIFIERS>
+          <PRIMARY_ID>SRR063905</PRIMARY_ID>
+          <SUBMITTER_ID namespace="JCVI">HUMAN METAGENOME 700110419-RL-01-801 Experiment GIWMCLJ</SUBMITTER_ID>
+     </IDENTIFIERS>
+     <TITLE>454 GS FLX Titanium sequencing</TITLE>
+     <EXPERIMENT_REF accession="SRX025496" refname="HUMAN METAGENOME 700110419-RL-01-801 Experiment 06-16-2010" refcenter="JCVI">
+          <IDENTIFIERS>
+               <PRIMARY_ID>SRX025496</PRIMARY_ID>
+               <SUBMITTER_ID namespace="JCVI">HUMAN METAGENOME 700110419-RL-01-801 Experiment 06-16-2010</SUBMITTER_ID>
+          </IDENTIFIERS>
+     </EXPERIMENT_REF>
+     <RUN_LINKS>
+          <RUN_LINK>
+               <XREF_LINK>
+                    <DB>ENA-STUDY</DB>
+                    <ID>SRP002163</ID>
+               </XREF_LINK>
+          </RUN_LINK>
+          <RUN_LINK>
+               <XREF_LINK>
+                    <DB>ENA-SAMPLE</DB>
+                    <ID>SRS045645</ID>
+               </XREF_LINK>
+          </RUN_LINK>
+          <RUN_LINK>
+               <XREF_LINK>
+                    <DB>ENA-SUBMISSION</DB>
+                    <ID>SRA023529</ID>
+               </XREF_LINK>
+          </RUN_LINK>
+          <RUN_LINK>
+               <XREF_LINK>
+                    <DB>ENA-FASTQ-FILES</DB>
+                    <ID>http://www.ebi.ac.uk/ena/data/view/reports/sra/fastq_files/SRR063905</ID>
+               </XREF_LINK>
+          </RUN_LINK>
+     </RUN_LINKS>
+     <RUN_ATTRIBUTES>
+          <RUN_ATTRIBUTE>
+               <TAG>ENA-SPOT-COUNT</TAG>
+               <VALUE>1300039</VALUE>
+          </RUN_ATTRIBUTE>
+          <RUN_ATTRIBUTE>
+               <TAG>ENA-BASE-COUNT</TAG>
+               <VALUE>386124808</VALUE>
+          </RUN_ATTRIBUTE>
+     </RUN_ATTRIBUTES>
+</RUN>
+</ROOT>

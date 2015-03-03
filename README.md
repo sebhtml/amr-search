@@ -15,6 +15,15 @@ Goal: download data for HMP samples.
 
 Needs Python >= 2.7
 
+To set up the virtual environment:
+
+    virtualenv ardm-virtualenv
+    source ardm-virtualenv/bin/activate
+    pip install -r data_fetcher/requirements.txt
+
+The MG-RAST Metagenome project used here is mgp385.
+
+
 microarray_tools
 ================
 
