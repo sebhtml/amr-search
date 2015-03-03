@@ -18,4 +18,3 @@ for file in os.listdir(json_directory):
         probe = my_package.SRAFetcher(srr_number, xml_directory)
         probe.download_xml()
 
-        break
