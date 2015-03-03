@@ -2,7 +2,7 @@
 
 import os
 
-directory_name = "HMP-samples"
+directory_name = "HMP-samples-from-brettin"
 
 files = os.listdir(directory_name)
 
