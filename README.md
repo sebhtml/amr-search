@@ -7,6 +7,20 @@ http://journals.plos.org/plosone/article?id=10.1371/journal.pone.0069507
 
 The microarray probe data is not available publicly.
 
-To run tests, run ./run_unit_tests.rb.
+
+data_fetcher
+============
+
+Goal: download data for HMP samples.
 
 Needs Python >= 2.7
+
+microarray_tools
+================
+
+Goal: run vsearch and analyze its output
+
+Using Ruby 2.2.0
+
+To run tests, run ./run_unit_tests.rb.
+
