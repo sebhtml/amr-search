@@ -9,6 +9,7 @@ import os.path
 import prettytable
 import requests_cache
 import httplib
+import subprocess
 
 import xmltodict
 
@@ -222,9 +223,13 @@ class MgRastMetagenome:
         self.fetch_uploaded_files()
 
         items = self.get_uploaded_files()
-
+        
+        cache = InputDataDownloader()
         for item in items:
-            print(str(item))
+            file_name = item[0]
+            address = item[1]
+
+            cache.download(file_name, address)
 
     def fetch_uploaded_files(self):
         download_metagenome_api_call = "http://api.metagenomics.anl.gov/download/{}"
@@ -247,7 +252,7 @@ class MgRastMetagenome:
 
                 file_name = "{}.{}.upload.fastq".format(self.id, file_id)
             
-                self._uploaded_files.append([file_name, address + "file={}".format(file_id)])
+                self._uploaded_files.append([file_name, address + "?file={}".format(file_id)])
 
     def delete_file_from_cache(self):
         return -1
@@ -354,7 +359,7 @@ class EbiSraSample:
         metagenomes = self.get_mgrast_metagenomes()
         for item in metagenomes:
             metagenome = MgRastMetagenome(item)
-            logging.debug("download sample {}, metagenome {}".format(self.get_name(), item))
+#logging.debug("download sample {}, metagenome {}".format(self.get_name(), item))
             metagenome.download()
 
         self.input_data_in_cache = True
@@ -387,7 +392,7 @@ class Command:
 
         elif command == "show-sample":
             self.show_sample()
-        elif command == "download-sample-data":
+        elif command == "download-sample":
             self.download_sample()
 
     def download_sample(self):
@@ -401,6 +406,7 @@ class Command:
         sample.download()
 
     def show_sample(self):
+        cache = InputDataDownloader()
         if len(sys.argv) != 3:
             print("show-sample: needs a sample name!")
             return
@@ -422,7 +428,9 @@ class Command:
             items = metagenome.get_uploaded_files()
 
             for item in items:
-                print("  +++ {}".format(item[0]))
+                file_name = item[0]
+                state = cache.is_entry_in_cache(file_name)
+                print("  +++ {} (available: {})".format(file_name, state))
 
     def list_samples(self):
 #print("sample   site    runs_in_cache")
@@ -451,3 +459,27 @@ class Command:
             table.add_row([sample, site, state, "-"])
 
         print(table)
+
+
+class InputDataDownloader:
+    def __init__(self):
+        self._directory = "input_data_cache"
+
+    def download(self, name, address):
+
+        if self.is_entry_in_cache(name):
+            return
+
+        logging.debug("Download {} to {}".format(address, name))
+        if not os.path.isdir(self._directory):
+            os.mkdir(self._directory)
+
+        with open(os.path.join(self._directory, name), "w") as out:
+            process = subprocess.Popen(["curl", address], stdout = out, stderr= subprocess.PIPE)
+            stdout, stderr = process.communicate()
+
+    def delete_cache_entry(self, name):
+        os.remove(os.path.join(self._directory, name))
+
+    def is_entry_in_cache(self, name):
+        return os.path.isfile(os.path.join(self._directory, name))
