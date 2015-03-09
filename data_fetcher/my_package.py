@@ -303,6 +303,16 @@ class MgRastMetagenome:
 
                 stdout, stderr = process.communicate()
 
+    def purge(self):
+
+        items = self.get_uploaded_files()
+
+        cache = InputDataDownloader()
+        for item in items:
+            file_name = item[0]
+
+            cache.delete_cache_entry(file_name)
+
 class EbiSraRun:
     """
     A class to read XML run files from EBI SRA.
@@ -418,6 +428,15 @@ class EbiSraSample:
 
         return True
 
+    def has_summary(self):
+        return False
+
+    def purge_input_data(self):
+        metagenomes = self.get_mgrast_metagenomes()
+        for item in metagenomes:
+            metagenome = MgRastMetagenome(item)
+            metagenome.purge()
+
 class Command:
     def __init__(self, arguments):
         self.arguments = arguments
@@ -430,6 +449,7 @@ class Command:
         if len(arguments) == 1:
             print("Please provide a sub-command:")
             print("list-samples")
+            print("purge            delete input data for samples that have alignments")
             print("show-sample")
             print("align-sample")
             print("download-sample-data")
@@ -454,11 +474,22 @@ class Command:
         elif command == "align-sample":
             self.align_sample()
 
+        elif command == "purge":
+            self.purge()
+
+    def purge(self):
+        samples = self.get_samples()
+
+        for sample in samples:
+            sample = EbiSraSample(sample)
+            if sample.is_aligned():
+                sample.purge_input_data()
+
     def align_sample(self):
         if len(sys.argv) != 3:
             print("show-sample: needs a sample name!")
             return
-
+    
         sample_name = sys.argv[2]
 
         sample = EbiSraSample(sample_name)
@@ -504,9 +535,9 @@ class Command:
                 print("  +++ {} (available: {}, Aligned: {})".format(file_name, state,
                                         aligned))
 
-    def list_samples(self):
 #print("sample   site    runs_in_cache")
 
+    def get_samples(self):
         samples = {}
 
         with open("metagenome_paths.txt") as f:
@@ -521,13 +552,18 @@ class Command:
         samples = samples.keys()
         samples = sorted(samples)
 
+        return samples
+
+    def list_samples(self):
+
+        samples = self.get_samples()
         table = prettytable.PrettyTable(["sample", "site", "input_data_available", "aligned", "Summary"])
         for sample in samples:
             sample_object = EbiSraSample(sample)
 
             site = sample_object.get_site()
             state = sample_object.get_state()
-            aligned = sample_object.get_alignment_state()
+            aligned = sample_object.is_aligned()
             has_summary = sample_object.has_summary()
 
             table.add_row([sample, site, state, aligned, has_summary])
