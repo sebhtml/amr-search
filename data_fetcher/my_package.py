@@ -7,6 +7,8 @@ import logging
 import sys
 import os.path
 import prettytable
+import requests_cache
+import httplib
 
 import xmltodict
 
@@ -24,7 +26,7 @@ class SRAFetcher:
         address = address.format(self.identifier, self.identifier)
         response = requests.get(address)
 
-        if response.status_code != 200:
+        if response.status_code != httplib.OK:
             raise Exception("incorrect HTTP status code..")
 
         if not os.path.exists(self.xml_directory):
@@ -65,7 +67,7 @@ class MetagenomeProject:
         request = requests.get(address)
         code = request.status_code
 
-        if code != 200:
+        if code != httplib.OK:
             print("There was a problem with the status code: {}".format(code))
             return
 
@@ -77,7 +79,7 @@ class MetagenomeProject:
                 address = download_metagenome_api_call.format(metagenome_name)
                 request = requests.get(address)
 
-                if code == 200:
+                if code == httplib.OK:
                     json_data = request.json()
                     data = json_data["data"]
                     
@@ -138,7 +140,7 @@ class MetagenomeProject:
         if not os.path.exists(metadata_directory):
             os.makedirs(metadata_directory)
 
-        if code != 200:
+        if code != httplib.OK:
             raise Exception("Error in HTTP return code.")
 
         project_data = request.json()
@@ -152,7 +154,7 @@ class MetagenomeProject:
 
             logging.debug("Fetching {} at {}".format(metagenome_name, address))
             
-            if code != 200:
+            if code != httplib.OK:
                 raise Exception("Error in HTTP return code !")
 
             json_data = request.json()
@@ -171,7 +173,7 @@ class MetagenomeProject:
 
             logging.debug("Fetching file info {} at {}".format(metagenome_name, address))
 
-            if code != 200:
+            if code != httplib.OK:
                 raise Exception("Invalid code for file info")
 
             data = request.json()
@@ -188,12 +190,22 @@ class MgRastMetagenome:
     """
     A wrapper around a MG-RAST metagenome
     """
-    def __init__(self, json_file):
-        self._cache_directory = "mgm_file_cache"
-        with open(json_file) as f:
-            json_data = json.loads(f.read())
+    def __init__(self, name):
+        self._cache_directory = "input_cache"
+
+        self._uploaded_files = []
+
+        download_metagenome_api_call = "http://api.metagenomics.anl.gov/metagenome/{}"
+        metagenome_file_call = "http://api.metagenomics.anl.gov/download/{}"
+
+        request = requests.get(download_metagenome_api_call.format(name))
+
+        if request.status_code == httplib.OK:
+            json_data = request.json()
             self.id = json_data["id"]
             self.sequencing_run = json_data["name"]
+        else:
+            raise Exception("invalide status code.")
 
     def get_identifier(self):
         return self.id
@@ -201,19 +213,58 @@ class MgRastMetagenome:
     def get_sequencing_run(self):
         return self.sequencing_run
 
-    def download_file(self):
-        return -1
+    def get_uploaded_files(self):
+
+        self.fetch_uploaded_files()
+        return self._uploaded_files
+
+    def download(self):
+        self.fetch_uploaded_files()
+
+        items = self.get_uploaded_files()
+
+        for item in items:
+            print(str(item))
+
+    def fetch_uploaded_files(self):
+        download_metagenome_api_call = "http://api.metagenomics.anl.gov/download/{}"
+        address = download_metagenome_api_call.format(self.id)
+#logging.debug("Downloading from {}".format(address))
+
+        request = requests.get(address)
+        if request.status_code != httplib.OK:
+            raise Exception("invalid code..")
+
+        json_data = request.json()
+
+        items = json_data["data"]
+
+        for item in items:
+            stage = item["stage_name"]
+
+            if stage == "upload":
+                file_id = item["file_id"]
+
+                file_name = "{}.{}.upload.fastq".format(self.id, file_id)
+            
+                self._uploaded_files.append([file_name, address + "file={}".format(file_id)])
 
     def delete_file_from_cache(self):
         return -1
 
-    def is_file_available_in_cache(self):
-        file_name = "{}.050.upload.fastq".format(self.id)
-        cache_file_path = self._cache_directory + file_name
+    def are_files_available_in_cache(self):
+        items = self.get_uploaded_files()
 
-        the_file_exists = os.path.isfile(cache_file_path)
+        for item in items:
+            file_name = item[0]
+            cache_file_path = os.path.join(self._cache_directory, "/", file_name)
 
-        return the_file_exists
+            the_file_exists = os.path.isfile(cache_file_path)
+
+            if not the_file_exists:
+                return False
+
+        return True 
 
 class EbiSraRun:
     """
@@ -257,7 +308,7 @@ class EbiSraSample:
     def __init__(self, name):
         self.name = name
         self.site = "?"
-        self.state = "?"
+        self.input_data_in_cache = False
         self._metagenomes = {}
 
         self._check_data()
@@ -265,8 +316,11 @@ class EbiSraSample:
     def get_site(self):
         return self.site
 
+    def get_name(self):
+        return self.name
+
     def get_state(self):
-        return self.state
+        return self.input_data_in_cache
 
     def synchronize(self):
         self._check_data()
@@ -288,19 +342,29 @@ class EbiSraSample:
                     run = tokens[3]
 
                     self._metagenomes[metagenome] = run
-                    metagenome = MgRastMetagenome("mgp385_metagenome_metadata/{}.json".format(metagenome))
+                    metagenome = MgRastMetagenome(metagenome)
 
-                    available = metagenome.is_file_available_in_cache()
+                    available = metagenome.are_files_available_in_cache()
 
                     if not available:
-                        self.state = "input-data-is-not-in-cache"
+                        self.input_data_in_cache = False
                         return
 
-        self.state = "input-data-is-in-cache"
+    def download(self):
+        metagenomes = self.get_mgrast_metagenomes()
+        for item in metagenomes:
+            metagenome = MgRastMetagenome(item)
+            logging.debug("download sample {}, metagenome {}".format(self.get_name(), item))
+            metagenome.download()
+
+        self.input_data_in_cache = True
  
 class Command:
     def __init__(self, arguments):
         self.arguments = arguments
+
+        # Use a HTTP cache for responses.
+        requests_cache.install_cache('demo_cache')
 
     def run(self):
         arguments = self.arguments
@@ -308,6 +372,7 @@ class Command:
             print("Please provide a sub-command:")
             print("list-samples")
             print("show-sample")
+            print("download-sample-data")
             print("list-probes")
             print("start-download-worker")
             print("start-analysis-worker")
@@ -322,6 +387,18 @@ class Command:
 
         elif command == "show-sample":
             self.show_sample()
+        elif command == "download-sample-data":
+            self.download_sample()
+
+    def download_sample(self):
+        if len(sys.argv) != 3:
+            print("show-sample: needs a sample name!")
+            return
+
+        sample_name = sys.argv[2]
+
+        sample = EbiSraSample(sample_name)
+        sample.download()
 
     def show_sample(self):
         if len(sys.argv) != 3:
@@ -341,6 +418,11 @@ class Command:
         metagenomes = sample.get_mgrast_metagenomes()
         for item in metagenomes:
             print("- {} ({})".format(item, metagenomes[item]))
+            metagenome = MgRastMetagenome(item)
+            items = metagenome.get_uploaded_files()
+
+            for item in items:
+                print("  +++ {}".format(item[0]))
 
     def list_samples(self):
 #print("sample   site    runs_in_cache")
