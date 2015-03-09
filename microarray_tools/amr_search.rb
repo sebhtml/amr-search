@@ -3,6 +3,8 @@
 require 'csv'
 require 'json'
 
+require 'open3' # IO.popen is not very good: it can't isolate stderr..
+
 # Dependencies:
 #
 # ruby (tested with Ruby 2.2.0)
@@ -61,13 +63,28 @@ command = "#{aligner} \
     --maxaccepts 4 \
     "
 
+aligned = 0
+total = 0
+
 # use IO.popen to discard the stuff printed to stdout.
 # \see http://ruby.bastardsbook.com/chapters/external-programs/
 #
 if not File.exists? output or not reuse_files
-    IO.popen(command, "r+") do |pipe|
-        pipe_output = pipe.read
+    Open3.popen3(command) do |stdin, stdout, stderr, wait_thr|
+        pipe_output = stdout.read
         STDERR.puts pipe_output
+        pipe_output = stderr.read
+        STDERR.puts pipe_output
+
+#Matching query sequences: 19 of 672090 (0.00%)
+        pipe_output.split("\n").each do |line|
+            tokens = line.split
+            if tokens[0] == "Matching"
+                aligned = tokens[3]
+                total = tokens[5]
+                STDERR.puts "found #{aligned}/#{total}"
+            end
+        end
     end
 
     #Kernel.system(command)
@@ -102,6 +119,8 @@ sorted_probes = probe_hits.to_a.sort { |x, y| y[1] <=> x[1] }
 result = {}
 
 result[:hits] = {}
+result[:total_number_of_sequences] = total
+result[:number_of_matched_sequences] = aligned
 result[:aligner] = aligner
 result[:database] = database
 result[:query] = fasta_query
