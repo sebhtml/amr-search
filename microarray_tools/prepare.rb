@@ -4,7 +4,7 @@ require 'csv'
 
 files = ["ARDMv2.csv", "ARDMv3-delta.csv"]
 
-probes = []
+probes = {}
 
 files.each do |file|
     #puts "Opening #{file}"
@@ -23,8 +23,19 @@ files.each do |file|
             next
         end
 
-        puts ">" + version + "-" + row[0] + "-" + row[1] + "-" + row[2]
+        feature_number = row[0]
+        probe_number = row[1]
+        probe_name = row[2]
+
+        #puts ">" + version + "-" + feature_number + "-" + probe_number + "-" + probe_name
+
+        if probes.has_key? probe_name
+            next
+        end
+
+        puts ">" + probe_name
         puts row[3].upcase
+        probes[probe_name] = 1
     end
 end
 
