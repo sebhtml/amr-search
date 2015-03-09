@@ -258,6 +258,7 @@ class EbiSraSample:
         self.name = name
         self.site = "?"
         self.state = "?"
+        self._metagenomes = {}
 
         self._check_data()
 
@@ -265,8 +266,13 @@ class EbiSraSample:
         return self.site
 
     def get_state(self):
-        self._check_data()
         return self.state
+
+    def synchronize(self):
+        self._check_data()
+
+    def get_mgrast_metagenomes(self):
+        return self._metagenomes
 
     def _check_data(self):
         # TODO this has a linear time complexity.
@@ -278,9 +284,11 @@ class EbiSraSample:
                 sample = tokens[5]
 
                 if sample == self.name:
-                    run = tokens[1]
+                    metagenome = tokens[1]
+                    run = tokens[3]
 
-                    metagenome = MgRastMetagenome("mgp385_metagenome_metadata/{}.json".format(run))
+                    self._metagenomes[metagenome] = run
+                    metagenome = MgRastMetagenome("mgp385_metagenome_metadata/{}.json".format(metagenome))
 
                     available = metagenome.is_file_available_in_cache()
 
@@ -299,6 +307,7 @@ class Command:
         if len(arguments) == 1:
             print("Please provide a sub-command:")
             print("list-samples")
+            print("show-sample")
             print("list-probes")
             print("start-download-worker")
             print("start-analysis-worker")
@@ -310,6 +319,28 @@ class Command:
 
         if command == "list-samples":
             self.list_samples()
+
+        elif command == "show-sample":
+            self.show_sample()
+
+    def show_sample(self):
+        if len(sys.argv) != 3:
+            print("show-sample: needs a sample name!")
+            return
+
+        sample_name = sys.argv[2]
+
+        sample = EbiSraSample(sample_name)
+
+        print("Name: {}".format(sample_name))
+        print("Site: {}".format(sample.get_site()))
+        print("input_data: {}".format(sample.get_state()))
+
+        print("MG-RAST metagenomes (SRA runs)")
+
+        metagenomes = sample.get_mgrast_metagenomes()
+        for item in metagenomes:
+            print("- {} ({})".format(item, metagenomes[item]))
 
     def list_samples(self):
 #print("sample   site    runs_in_cache")
