@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ROOT request="download accessions">
+<RUN alias="64034" center_name="WUGSC" run_date="2010-06-24T10:15:00Z" run_center="WUGSC" accession="SRR063498" broker_name="NCBI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+     <IDENTIFIERS>
+          <PRIMARY_ID>SRR063498</PRIMARY_ID>
+          <SUBMITTER_ID namespace="WUGSC">64034</SUBMITTER_ID>
+     </IDENTIFIERS>
+     <TITLE>Illumina Genome Analyzer II paired end sequencing</TITLE>
+     <EXPERIMENT_REF accession="SRX025186" refname="64033" refcenter="WUGSC">
+          <IDENTIFIERS>
+               <PRIMARY_ID>SRX025186</PRIMARY_ID>
+               <SUBMITTER_ID namespace="WUGSC">64033</SUBMITTER_ID>
+          </IDENTIFIERS>
+     </EXPERIMENT_REF>
+     <RUN_LINKS>
+          <RUN_LINK>
+               <XREF_LINK>
+                    <DB>ENA-STUDY</DB>
+                    <ID>SRP002163</ID>
+               </XREF_LINK>
+          </RUN_LINK>
+          <RUN_LINK>
+               <XREF_LINK>
+                    <DB>ENA-SAMPLE</DB>
+                    <ID>SRS053437</ID>
+               </XREF_LINK>
+          </RUN_LINK>
+          <RUN_LINK>
+               <XREF_LINK>
+                    <DB>ENA-SUBMISSION</DB>
+                    <ID>SRA023290</ID>
+               </XREF_LINK>
+          </RUN_LINK>
+          <RUN_LINK>
+               <XREF_LINK>
+                    <DB>ENA-FASTQ-FILES</DB>
+                    <ID>http://www.ebi.ac.uk/ena/data/view/reports/sra/fastq_files/SRR063498</ID>
+               </XREF_LINK>
+          </RUN_LINK>
+     </RUN_LINKS>
+     <RUN_ATTRIBUTES>
+          <RUN_ATTRIBUTE>
+               <TAG>quality_book_char</TAG>
+               <VALUE>@</VALUE>
+          </RUN_ATTRIBUTE>
+          <RUN_ATTRIBUTE>
+               <TAG>quality_scoring_system</TAG>
+               <VALUE>log odds</VALUE>
+          </RUN_ATTRIBUTE>
+          <RUN_ATTRIBUTE>
+               <TAG>ENA-SPOT-COUNT</TAG>
+               <VALUE>32875521</VALUE>
+          </RUN_ATTRIBUTE>
+          <RUN_ATTRIBUTE>
+               <TAG>ENA-BASE-COUNT</TAG>
+               <VALUE>6575104200</VALUE>
+          </RUN_ATTRIBUTE>
+     </RUN_ATTRIBUTES>
+</RUN>
+</ROOT>

@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ROOT request="download accessions">
+<RUN alias="47259" run_date="2009-12-07T15:34:00Z" run_center="WUGSC" center_name="WUGSC" accession="SRR042183" broker_name="NCBI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+     <IDENTIFIERS>
+          <PRIMARY_ID>SRR042183</PRIMARY_ID>
+          <SUBMITTER_ID namespace="WUGSC">47259</SUBMITTER_ID>
+     </IDENTIFIERS>
+     <TITLE>Illumina Genome Analyzer II paired end sequencing</TITLE>
+     <EXPERIMENT_REF accession="SRX019704" refname="47256" refcenter="WUGSC">
+          <IDENTIFIERS>
+               <PRIMARY_ID>SRX019704</PRIMARY_ID>
+               <SUBMITTER_ID namespace="WUGSC">47256</SUBMITTER_ID>
+          </IDENTIFIERS>
+     </EXPERIMENT_REF>
+     <RUN_LINKS>
+          <RUN_LINK>
+               <XREF_LINK>
+                    <DB>ENA-STUDY</DB>
+                    <ID>SRP002163</ID>
+               </XREF_LINK>
+          </RUN_LINK>
+          <RUN_LINK>
+               <XREF_LINK>
+                    <DB>ENA-SAMPLE</DB>
+                    <ID>SRS019068</ID>
+               </XREF_LINK>
+          </RUN_LINK>
+          <RUN_LINK>
+               <XREF_LINK>
+                    <DB>ENA-SUBMISSION</DB>
+                    <ID>SRA012651</ID>
+               </XREF_LINK>
+          </RUN_LINK>
+          <RUN_LINK>
+               <XREF_LINK>
+                    <DB>ENA-FASTQ-FILES</DB>
+                    <ID>http://www.ebi.ac.uk/ena/data/view/reports/sra/fastq_files/SRR042183</ID>
+               </XREF_LINK>
+          </RUN_LINK>
+     </RUN_LINKS>
+     <RUN_ATTRIBUTES>
+          <RUN_ATTRIBUTE>
+               <TAG>ENA-SPOT-COUNT</TAG>
+               <VALUE>20271146</VALUE>
+          </RUN_ATTRIBUTE>
+          <RUN_ATTRIBUTE>
+               <TAG>ENA-BASE-COUNT</TAG>
+               <VALUE>4054229200</VALUE>
+          </RUN_ATTRIBUTE>
+     </RUN_ATTRIBUTES>
+</RUN>
+</ROOT>

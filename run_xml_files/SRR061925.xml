@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ROOT request="download accessions">
+<RUN run_center="BI" accession="SRR061925" center_name="BI" alias="BI.PE.100516_SL-XDE_0004_FC61G9RAAXX.5" broker_name="NCBI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+     <IDENTIFIERS>
+          <PRIMARY_ID>SRR061925</PRIMARY_ID>
+          <SUBMITTER_ID namespace="BI">BI.PE.100516_SL-XDE_0004_FC61G9RAAXX.5</SUBMITTER_ID>
+          <UUID>c71e18d7-bf8f-c138-e040-ad451e4133e6</UUID>
+     </IDENTIFIERS>
+     <TITLE>Illumina Genome Analyzer II paired end sequencing; Deep WGS Genome Sequencing of HMP clinical samples</TITLE>
+     <EXPERIMENT_REF accession="SRX024537" refname="61G9RAAXX100516-5-P" refcenter="BI">
+          <IDENTIFIERS>
+               <PRIMARY_ID>SRX024537</PRIMARY_ID>
+               <SUBMITTER_ID namespace="BI">61G9RAAXX100516-5-P</SUBMITTER_ID>
+               <UUID>5ac9c622-65e3-4eb8-b254-ca1dbdcb20b8</UUID>
+          </IDENTIFIERS>
+     </EXPERIMENT_REF>
+     <RUN_LINKS>
+          <RUN_LINK>
+               <XREF_LINK>
+                    <DB>ENA-STUDY</DB>
+                    <ID>SRP002163</ID>
+               </XREF_LINK>
+          </RUN_LINK>
+          <RUN_LINK>
+               <XREF_LINK>
+                    <DB>ENA-SAMPLE</DB>
+                    <ID>SRS017851</ID>
+               </XREF_LINK>
+          </RUN_LINK>
+          <RUN_LINK>
+               <XREF_LINK>
+                    <DB>ENA-SUBMISSION</DB>
+                    <ID>SRA020838</ID>
+               </XREF_LINK>
+          </RUN_LINK>
+          <RUN_LINK>
+               <XREF_LINK>
+                    <DB>ENA-FASTQ-FILES</DB>
+                    <ID>http://www.ebi.ac.uk/ena/data/view/reports/sra/fastq_files/SRR061925</ID>
+               </XREF_LINK>
+          </RUN_LINK>
+     </RUN_LINKS>
+     <RUN_ATTRIBUTES>
+          <RUN_ATTRIBUTE>
+               <TAG>flowcell_barcode</TAG>
+               <VALUE>61G9RAAXX</VALUE>
+          </RUN_ATTRIBUTE>
+          <RUN_ATTRIBUTE>
+               <TAG>gssr_id</TAG>
+               <VALUE>50611.2</VALUE>
+          </RUN_ATTRIBUTE>
+          <RUN_ATTRIBUTE>
+               <TAG>instrument_name</TAG>
+               <VALUE>SL-XDE</VALUE>
+          </RUN_ATTRIBUTE>
+          <RUN_ATTRIBUTE>
+               <TAG>lane</TAG>
+               <VALUE>5</VALUE>
+          </RUN_ATTRIBUTE>
+          <RUN_ATTRIBUTE>
+               <TAG>lsid</TAG>
+               <VALUE>BROAD:SEQUENCING_SAMPLE:50611.2</VALUE>
+          </RUN_ATTRIBUTE>
+          <RUN_ATTRIBUTE>
+               <TAG>project</TAG>
+               <VALUE>G4211</VALUE>
+          </RUN_ATTRIBUTE>
+          <RUN_ATTRIBUTE>
+               <TAG>run_barcode</TAG>
+               <VALUE>61G9RAAXX100516</VALUE>
+          </RUN_ATTRIBUTE>
+          <RUN_ATTRIBUTE>
+               <TAG>run_name</TAG>
+               <VALUE>100516_SL-XDE_0004_FC61G9RAAXX</VALUE>
+          </RUN_ATTRIBUTE>
+          <RUN_ATTRIBUTE>
+               <TAG>work_request</TAG>
+               <VALUE>21991</VALUE>
+          </RUN_ATTRIBUTE>
+          <RUN_ATTRIBUTE>
+               <TAG>ENA-SPOT-COUNT</TAG>
+               <VALUE>27515522</VALUE>
+          </RUN_ATTRIBUTE>
+          <RUN_ATTRIBUTE>
+               <TAG>ENA-BASE-COUNT</TAG>
+               <VALUE>5558135444</VALUE>
+          </RUN_ATTRIBUTE>
+     </RUN_ATTRIBUTES>
+</RUN>
+</ROOT>

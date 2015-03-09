@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ROOT request="download accessions">
+<RUN run_center="BI" accession="SRR063923" center_name="BI" alias="BI.PE.100515_SL-XCJ_0004_FC61JCYAAXX.7" broker_name="NCBI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+     <IDENTIFIERS>
+          <PRIMARY_ID>SRR063923</PRIMARY_ID>
+          <SUBMITTER_ID namespace="BI">BI.PE.100515_SL-XCJ_0004_FC61JCYAAXX.7</SUBMITTER_ID>
+          <UUID>c71e1bad-5cc4-52dd-e040-ad451e4152e1</UUID>
+     </IDENTIFIERS>
+     <TITLE>Illumina Genome Analyzer II paired end sequencing; Deep WGS Genome Sequencing of HMP clinical samples</TITLE>
+     <EXPERIMENT_REF accession="SRX025511" refname="61JCYAAXX100515-7-P" refcenter="BI">
+          <IDENTIFIERS>
+               <PRIMARY_ID>SRX025511</PRIMARY_ID>
+               <SUBMITTER_ID namespace="BI">61JCYAAXX100515-7-P</SUBMITTER_ID>
+               <UUID>62f5fab5-c9e3-455b-9785-4fe9243c01f8</UUID>
+          </IDENTIFIERS>
+     </EXPERIMENT_REF>
+     <RUN_LINKS>
+          <RUN_LINK>
+               <XREF_LINK>
+                    <DB>ENA-STUDY</DB>
+                    <ID>SRP002163</ID>
+               </XREF_LINK>
+          </RUN_LINK>
+          <RUN_LINK>
+               <XREF_LINK>
+                    <DB>ENA-SAMPLE</DB>
+                    <ID>SRS075410</ID>
+               </XREF_LINK>
+          </RUN_LINK>
+          <RUN_LINK>
+               <XREF_LINK>
+                    <DB>ENA-SUBMISSION</DB>
+                    <ID>SRA020838</ID>
+               </XREF_LINK>
+          </RUN_LINK>
+          <RUN_LINK>
+               <XREF_LINK>
+                    <DB>ENA-FASTQ-FILES</DB>
+                    <ID>http://www.ebi.ac.uk/ena/data/view/reports/sra/fastq_files/SRR063923</ID>
+               </XREF_LINK>
+          </RUN_LINK>
+     </RUN_LINKS>
+     <RUN_ATTRIBUTES>
+          <RUN_ATTRIBUTE>
+               <TAG>flowcell_barcode</TAG>
+               <VALUE>61JCYAAXX</VALUE>
+          </RUN_ATTRIBUTE>
+          <RUN_ATTRIBUTE>
+               <TAG>gssr_id</TAG>
+               <VALUE>56200.1</VALUE>
+          </RUN_ATTRIBUTE>
+          <RUN_ATTRIBUTE>
+               <TAG>instrument_name</TAG>
+               <VALUE>SL-XCJ</VALUE>
+          </RUN_ATTRIBUTE>
+          <RUN_ATTRIBUTE>
+               <TAG>lane</TAG>
+               <VALUE>7</VALUE>
+          </RUN_ATTRIBUTE>
+          <RUN_ATTRIBUTE>
+               <TAG>lsid</TAG>
+               <VALUE>BROAD:SEQUENCING_SAMPLE:56200.1</VALUE>
+          </RUN_ATTRIBUTE>
+          <RUN_ATTRIBUTE>
+               <TAG>project</TAG>
+               <VALUE>G4211</VALUE>
+          </RUN_ATTRIBUTE>
+          <RUN_ATTRIBUTE>
+               <TAG>run_barcode</TAG>
+               <VALUE>61JCYAAXX100515</VALUE>
+          </RUN_ATTRIBUTE>
+          <RUN_ATTRIBUTE>
+               <TAG>run_name</TAG>
+               <VALUE>100515_SL-XCJ_0004_FC61JCYAAXX</VALUE>
+          </RUN_ATTRIBUTE>
+          <RUN_ATTRIBUTE>
+               <TAG>work_request</TAG>
+               <VALUE>21991</VALUE>
+          </RUN_ATTRIBUTE>
+          <RUN_ATTRIBUTE>
+               <TAG>ENA-SPOT-COUNT</TAG>
+               <VALUE>33455647</VALUE>
+          </RUN_ATTRIBUTE>
+          <RUN_ATTRIBUTE>
+               <TAG>ENA-BASE-COUNT</TAG>
+               <VALUE>6758040694</VALUE>
+          </RUN_ATTRIBUTE>
+     </RUN_ATTRIBUTES>
+</RUN>
+</ROOT>

@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ROOT request="download accessions">
+<RUN alias="HUMAN METAGENOME 700098681-PE-1 Experiment Run" run_center="JCVI" center_name="JCVI" accession="SRR063746" broker_name="NCBI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+     <IDENTIFIERS>
+          <PRIMARY_ID>SRR063746</PRIMARY_ID>
+          <SUBMITTER_ID namespace="JCVI">HUMAN METAGENOME 700098681-PE-1 Experiment Run</SUBMITTER_ID>
+     </IDENTIFIERS>
+     <TITLE>Illumina Genome Analyzer II paired end sequencing; HUMAN METAGENOME 700098681-PE-1 Experiment</TITLE>
+     <EXPERIMENT_REF accession="SRX025359" refname="HUMAN METAGENOME 700098681-PE-1 Experiment" refcenter="JCVI">
+          <IDENTIFIERS>
+               <PRIMARY_ID>SRX025359</PRIMARY_ID>
+               <SUBMITTER_ID namespace="JCVI">HUMAN METAGENOME 700098681-PE-1 Experiment</SUBMITTER_ID>
+          </IDENTIFIERS>
+     </EXPERIMENT_REF>
+     <RUN_LINKS>
+          <RUN_LINK>
+               <XREF_LINK>
+                    <DB>ENA-STUDY</DB>
+                    <ID>SRP002163</ID>
+               </XREF_LINK>
+          </RUN_LINK>
+          <RUN_LINK>
+               <XREF_LINK>
+                    <DB>ENA-SAMPLE</DB>
+                    <ID>SRS022725</ID>
+               </XREF_LINK>
+          </RUN_LINK>
+          <RUN_LINK>
+               <XREF_LINK>
+                    <DB>ENA-SUBMISSION</DB>
+                    <ID>SRA023479</ID>
+               </XREF_LINK>
+          </RUN_LINK>
+          <RUN_LINK>
+               <XREF_LINK>
+                    <DB>ENA-FASTQ-FILES</DB>
+                    <ID>http://www.ebi.ac.uk/ena/data/view/reports/sra/fastq_files/SRR063746</ID>
+               </XREF_LINK>
+          </RUN_LINK>
+     </RUN_LINKS>
+     <RUN_ATTRIBUTES>
+          <RUN_ATTRIBUTE>
+               <TAG>quality_book_char</TAG>
+               <VALUE>@</VALUE>
+               <UNITS/>
+          </RUN_ATTRIBUTE>
+          <RUN_ATTRIBUTE>
+               <TAG>quality_scoring_system</TAG>
+               <VALUE>log odds</VALUE>
+               <UNITS/>
+          </RUN_ATTRIBUTE>
+          <RUN_ATTRIBUTE>
+               <TAG>ENA-SPOT-COUNT</TAG>
+               <VALUE>31780259</VALUE>
+          </RUN_ATTRIBUTE>
+          <RUN_ATTRIBUTE>
+               <TAG>ENA-BASE-COUNT</TAG>
+               <VALUE>6356051800</VALUE>
+          </RUN_ATTRIBUTE>
+     </RUN_ATTRIBUTES>
+</RUN>
+</ROOT>
