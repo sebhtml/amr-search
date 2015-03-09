@@ -272,7 +272,21 @@ class MgRastMetagenome:
 
         return True 
 
+    def is_aligned(self):
+
+        items = self.get_uploaded_files()
+        cache = InputDataDownloader()
+
+        for item in items:
+            file_name = item[0]
+            if not cache.is_aligned(file_name):
+                return False
+
+        return True
+
     def align(self):
+
+
         self.download()
 
         items = self.get_uploaded_files()
@@ -386,10 +400,23 @@ class EbiSraSample:
         self.input_data_in_cache = True
  
     def align(self):
+
+        if self.is_aligned():
+            return
+
         metagenomes = self.get_mgrast_metagenomes()
         for item in metagenomes:
             metagenome = MgRastMetagenome(item)
             metagenome.align()
+
+    def is_aligned(self):
+        metagenomes = self.get_mgrast_metagenomes()
+        for item in metagenomes:
+            metagenome = MgRastMetagenome(item)
+            if not metagenome.is_aligned():
+                return False
+
+        return True
 
 class Command:
     def __init__(self, arguments):
@@ -459,7 +486,8 @@ class Command:
 
         print("Name: {}".format(sample_name))
         print("Site: {}".format(sample.get_site()))
-        print("input_data: {}".format(sample.get_state()))
+        print("input_data_available: {}".format(sample.get_state()))
+        print("is_aligned: {}".format(sample.is_aligned()))
 
         print("MG-RAST metagenomes (SRA runs)")
 
@@ -493,14 +521,16 @@ class Command:
         samples = samples.keys()
         samples = sorted(samples)
 
-        table = prettytable.PrettyTable(["sample", "site", "input_data", "probe_counts"])
+        table = prettytable.PrettyTable(["sample", "site", "input_data_available", "aligned", "Summary"])
         for sample in samples:
-            sampleObject = EbiSraSample(sample)
+            sample_object = EbiSraSample(sample)
 
-            site = sampleObject.get_site()
-            state = sampleObject.get_state()
+            site = sample_object.get_site()
+            state = sample_object.get_state()
+            aligned = sample_object.get_alignment_state()
+            has_summary = sample_object.has_summary()
 
-            table.add_row([sample, site, state, "-"])
+            table.add_row([sample, site, state, aligned, has_summary])
 
         print(table)
 
