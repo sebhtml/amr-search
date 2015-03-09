@@ -4,6 +4,9 @@ import os
 import xml.etree.ElementTree
 import json
 import logging
+import sys
+import os.path
+import prettytable
 
 import xmltodict
 
@@ -121,6 +124,7 @@ class MetagenomeProject:
 
         project_api_call = "http://api.metagenomics.anl.gov/project/{}?verbosity=full"
         download_metagenome_api_call = "http://api.metagenomics.anl.gov/metagenome/{}"
+        metagenome_file_call = "http://api.metagenomics.anl.gov/download/{}"
 
         project = self.name
 
@@ -144,7 +148,7 @@ class MetagenomeProject:
             address = download_metagenome_api_call.format(metagenome_name)
             request = requests.get(address)
 
-            code = requests.status_code
+            code = request.status_code
 
             logging.debug("Fetching {} at {}".format(metagenome_name, address))
             
@@ -159,12 +163,33 @@ class MetagenomeProject:
             output.write(json.dumps(data))
             output.close()
 
+            # also fetch the download information
+            address = metagenome_file_call.format(metagenome_name)
+            request = requests.get(address)
+
+            code = request.status_code
+
+            logging.debug("Fetching file info {} at {}".format(metagenome_name, address))
+
+            if code != 200:
+                raise Exception("Invalid code for file info")
+
+            data = request.json()
+
+            output = open(os.path.join(metadata_directory, metagenome_name + "-download.json"), "w+")
+            output.write(json.dumps(data))
+            output.close()
+    
+    def run_command(self):
+        command = Command(sys.argv)
+        command.run()
 
 class MgRastMetagenome:
     """
     A wrapper around a MG-RAST metagenome
     """
     def __init__(self, json_file):
+        self._cache_directory = "mgm_file_cache"
         with open(json_file) as f:
             json_data = json.loads(f.read())
             self.id = json_data["id"]
@@ -176,6 +201,19 @@ class MgRastMetagenome:
     def get_sequencing_run(self):
         return self.sequencing_run
 
+    def download_file(self):
+        return -1
+
+    def delete_file_from_cache(self):
+        return -1
+
+    def is_file_available_in_cache(self):
+        file_name = "{}.050.upload.fastq".format(self.id)
+        cache_file_path = self._cache_directory + file_name
+
+        the_file_exists = os.path.isfile(cache_file_path)
+
+        return the_file_exists
 
 class EbiSraRun:
     """
@@ -214,3 +252,89 @@ class EbiSraRun:
 
     def get_sample_name(self):
         return self.sample
+
+class EbiSraSample:
+    def __init__(self, name):
+        self.name = name
+        self.site = "?"
+        self.state = "?"
+
+        self._check_data()
+
+    def get_site(self):
+        return self.site
+
+    def get_state(self):
+        self._check_data()
+        return self.state
+
+    def _check_data(self):
+        # TODO this has a linear time complexity.
+        # to do better than this, we probably want to use redis or mongodb..
+        # anyway..
+        with open("metagenome_paths.txt") as f:
+            for line in f:
+                tokens = line.split()
+                sample = tokens[5]
+
+                if sample == self.name:
+                    run = tokens[1]
+
+                    metagenome = MgRastMetagenome("mgp385_metagenome_metadata/{}.json".format(run))
+
+                    available = metagenome.is_file_available_in_cache()
+
+                    if not available:
+                        self.state = "input-data-is-not-in-cache"
+                        return
+
+        self.state = "input-data-is-in-cache"
+ 
+class Command:
+    def __init__(self, arguments):
+        self.arguments = arguments
+
+    def run(self):
+        arguments = self.arguments
+        if len(arguments) == 1:
+            print("Please provide a sub-command:")
+            print("list-samples")
+            print("list-probes")
+            print("start-download-worker")
+            print("start-analysis-worker")
+            return
+
+        command = arguments[1]
+
+#print("command= {}".format(command))
+
+        if command == "list-samples":
+            self.list_samples()
+
+    def list_samples(self):
+#print("sample   site    runs_in_cache")
+
+        samples = {}
+
+        with open("metagenome_paths.txt") as f:
+            for line in f:
+                tokens = line.split()
+            
+        # Path: mgm4472521.3 -> SRR060413 -> SRS011269
+                sample = tokens[5]
+
+                samples[sample] = 99
+        
+        samples = samples.keys()
+        samples = sorted(samples)
+
+        table = prettytable.PrettyTable(["sample", "site", "input_data", "probe_counts"])
+        for sample in samples:
+            sampleObject = EbiSraSample(sample)
+
+            site = sampleObject.get_site()
+            state = sampleObject.get_state()
+
+            table.add_row([sample, site, state, "-"])
+
+        print(table)

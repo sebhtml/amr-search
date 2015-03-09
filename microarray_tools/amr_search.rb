@@ -29,7 +29,7 @@ reuse_files = false
 
 query=ARGV[0]
 
-database="/bigdata/seb/amr-search/ARDM_v2_and_v3.fasta"
+database = File.dirname(__FILE__) + "/../ARDM_v2_and_v3.fasta"
 
 #fastq2fasta.pl $query > $query.fasta
 
