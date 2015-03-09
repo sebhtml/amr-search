@@ -13,6 +13,8 @@ import subprocess
 
 import xmltodict
 
+alignment_directory = "alignments"
+
 class SRAFetcher:
     """
     This class is useful for downloading XML files for objects identified by SRA identifier.
@@ -83,7 +85,7 @@ class MetagenomeProject:
                 if code == httplib.OK:
                     json_data = request.json()
                     data = json_data["data"]
-                    
+
                     for stage in data:
                         stage_name = stage["stage_name"]
                         url = stage["url"]
@@ -91,7 +93,7 @@ class MetagenomeProject:
 
                         if self.use_stage_name(stage_name):
                             print("curl {} > {}".format(url, file_name))
-    
+
     def use_stage_name(self, stage_name):
         if self.selected_stage != None:
             if stage_name != self.selected_stage:
@@ -154,14 +156,14 @@ class MetagenomeProject:
             code = request.status_code
 
             logging.debug("Fetching {} at {}".format(metagenome_name, address))
-            
+
             if code != httplib.OK:
                 raise Exception("Error in HTTP return code !")
 
             json_data = request.json()
-            
+
             data = json_data
-                    
+
             output = open(os.path.join(metadata_directory, metagenome_name + ".json"), "w+")
             output.write(json.dumps(data))
             output.close()
@@ -182,7 +184,7 @@ class MetagenomeProject:
             output = open(os.path.join(metadata_directory, metagenome_name + "-download.json"), "w+")
             output.write(json.dumps(data))
             output.close()
-    
+
     def run_command(self):
         command = Command(sys.argv)
         command.run()
@@ -192,7 +194,6 @@ class MgRastMetagenome:
     A wrapper around a MG-RAST metagenome
     """
     def __init__(self, name):
-        self._cache_directory = "input_cache"
 
         self._uploaded_files = []
 
@@ -223,7 +224,7 @@ class MgRastMetagenome:
         self.fetch_uploaded_files()
 
         items = self.get_uploaded_files()
-        
+
         cache = InputDataDownloader()
         for item in items:
             file_name = item[0]
@@ -251,7 +252,7 @@ class MgRastMetagenome:
                 file_id = item["file_id"]
 
                 file_name = "{}.{}.upload.fastq".format(self.id, file_id)
-            
+
                 self._uploaded_files.append([file_name, address + "?file={}".format(file_id)])
 
     def delete_file_from_cache(self):
@@ -259,17 +260,34 @@ class MgRastMetagenome:
 
     def are_files_available_in_cache(self):
         items = self.get_uploaded_files()
+        cache = InputDataDownloader()
 
         for item in items:
             file_name = item[0]
-            cache_file_path = os.path.join(self._cache_directory, "/", file_name)
 
-            the_file_exists = os.path.isfile(cache_file_path)
+            the_file_exists = cache.is_entry_in_cache(file_name)
 
             if not the_file_exists:
                 return False
 
         return True 
+
+    def align(self):
+        self.download()
+
+        items = self.get_uploaded_files()
+
+        for item in items:
+            file_name = item[0]
+
+            if not os.path.isdir(alignment_directory):
+                os.mkdir(alignment_directory)
+
+            with open("{}/{}.json".format(alignment_directory, file_name), "w") as out:
+                process = subprocess.Popen(["./microarray_tools/amr_search.rb",
+                                "input_data_cache/mgm4478644.3.050.1.upload.fastq"], stdout = out, stderr= subprocess.PIPE)
+
+                stdout, stderr = process.communicate()
 
 class EbiSraRun:
     """
@@ -279,7 +297,7 @@ class EbiSraRun:
         with open(file) as f:
             content = f.read()
             data = xmltodict.parse(content)
-            
+
             identifier = data["ROOT"]["RUN"]["IDENTIFIERS"]["PRIMARY_ID"]
 
             self.identifier = identifier
@@ -325,6 +343,7 @@ class EbiSraSample:
         return self.name
 
     def get_state(self):
+        self._check_data()
         return self.input_data_in_cache
 
     def synchronize(self):
@@ -355,6 +374,8 @@ class EbiSraSample:
                         self.input_data_in_cache = False
                         return
 
+        self.input_data_in_cache = True
+
     def download(self):
         metagenomes = self.get_mgrast_metagenomes()
         for item in metagenomes:
@@ -364,6 +385,12 @@ class EbiSraSample:
 
         self.input_data_in_cache = True
  
+    def align(self):
+        metagenomes = self.get_mgrast_metagenomes()
+        for item in metagenomes:
+            metagenome = MgRastMetagenome(item)
+            metagenome.align()
+
 class Command:
     def __init__(self, arguments):
         self.arguments = arguments
@@ -377,6 +404,7 @@ class Command:
             print("Please provide a sub-command:")
             print("list-samples")
             print("show-sample")
+            print("align-sample")
             print("download-sample-data")
             print("list-probes")
             print("start-download-worker")
@@ -392,8 +420,22 @@ class Command:
 
         elif command == "show-sample":
             self.show_sample()
+
         elif command == "download-sample":
             self.download_sample()
+
+        elif command == "align-sample":
+            self.align_sample()
+
+    def align_sample(self):
+        if len(sys.argv) != 3:
+            print("show-sample: needs a sample name!")
+            return
+
+        sample_name = sys.argv[2]
+
+        sample = EbiSraSample(sample_name)
+        sample.align()
 
     def download_sample(self):
         if len(sys.argv) != 3:
@@ -430,7 +472,9 @@ class Command:
             for item in items:
                 file_name = item[0]
                 state = cache.is_entry_in_cache(file_name)
-                print("  +++ {} (available: {})".format(file_name, state))
+                aligned = cache.is_aligned(file_name)
+                print("  +++ {} (available: {}, Aligned: {})".format(file_name, state,
+                                        aligned))
 
     def list_samples(self):
 #print("sample   site    runs_in_cache")
@@ -440,12 +484,12 @@ class Command:
         with open("metagenome_paths.txt") as f:
             for line in f:
                 tokens = line.split()
-            
+
         # Path: mgm4472521.3 -> SRR060413 -> SRS011269
                 sample = tokens[5]
 
                 samples[sample] = 99
-        
+
         samples = samples.keys()
         samples = sorted(samples)
 
@@ -483,3 +527,6 @@ class InputDataDownloader:
 
     def is_entry_in_cache(self, name):
         return os.path.isfile(os.path.join(self._directory, name))
+
+    def is_aligned(self, name):
+        return os.path.isfile("{}/{}.json".format(alignment_directory, name))
