@@ -24,7 +24,7 @@ if ARGV.size != 1
     exit
 end
 
-purge_files = false
+purge_files = true
 reuse_files = false
 
 query=ARGV[0]
