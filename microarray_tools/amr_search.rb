@@ -71,6 +71,10 @@ total = 0
 #
 if not File.exists? output or not reuse_files
     Open3.popen3(command) do |stdin, stdout, stderr, wait_thr|
+
+        # close stdin to avoid the system from hanging for eternity.
+        stdin.close
+
         pipe_output = stdout.read
         STDERR.puts pipe_output
         pipe_output = stderr.read
