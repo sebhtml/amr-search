@@ -578,10 +578,13 @@ class Command:
                 file_name = item[0]
                 expected_file_size = item[2]["file_size"]
                 state = cache.is_entry_in_cache(file_name, expected_file_size)
+                size = expected_file_size
+                md5_key = "file_md5"
+                md5sum = item[2][md5_key]
 
                 aligned = cache.is_aligned(file_name)
-                print("  +++ {} (available: {}, Aligned: {})".format(file_name, state,
-                                        aligned))
+                print("  - {} (available: {}, aligned: {}, md5: {}, size: {})".format(file_name, state,
+                                        aligned, md5sum, size))
 
 #print("sample   site    runs_in_cache")
 
