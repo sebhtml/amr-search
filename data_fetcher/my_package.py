@@ -229,8 +229,8 @@ class MgRastMetagenome:
         for item in items:
             file_name = item[0]
             address = item[1]
-
-            cache.download(file_name, address)
+            file_size = item[2]["file_size"]
+            cache.download(file_name, address, file_size)
 
     def fetch_uploaded_files(self):
         download_metagenome_api_call = "http://api.metagenomics.anl.gov/download/{}"
@@ -253,7 +253,7 @@ class MgRastMetagenome:
 
                 file_name = "{}.{}.upload.fastq".format(self.id, file_id)
 
-                self._uploaded_files.append([file_name, address + "?file={}".format(file_id)])
+                self._uploaded_files.append([file_name, address + "?file={}".format(file_id), item])
 
     def delete_file_from_cache(self):
         return -1
@@ -265,7 +265,7 @@ class MgRastMetagenome:
         for item in items:
             file_name = item[0]
 
-            the_file_exists = cache.is_entry_in_cache(file_name)
+            the_file_exists = cache.is_entry_in_cache(file_name, item[2]["file_size"])
 
             if not the_file_exists:
                 return False
@@ -452,10 +452,10 @@ class Command:
             print("purge            delete input data for samples that have alignments")
             print("show-sample")
             print("align-sample")
-            print("download-sample-data")
-            print("list-probes")
-            print("start-download-worker")
-            print("start-analysis-worker")
+            print("align-samples")
+            print("download-sample")
+            print("download-samples")
+
             return
 
         command = arguments[1]
@@ -470,6 +470,9 @@ class Command:
 
         elif command == "download-sample":
             self.download_sample()
+
+        elif command == "download-samples":
+            self.download_samples()
 
         elif command == "align-sample":
             self.align_sample()
@@ -494,6 +497,16 @@ class Command:
 
         sample = EbiSraSample(sample_name)
         sample.align()
+
+    def download_samples(self):
+        samples = self.get_samples()
+
+        for sample_name in samples:
+            sample = EbiSraSample(sample_name)
+
+            # only download those that are not aligned
+            if not sample.is_aligned():
+                sample.download()
 
     def download_sample(self):
         if len(sys.argv) != 3:
@@ -530,7 +543,9 @@ class Command:
 
             for item in items:
                 file_name = item[0]
-                state = cache.is_entry_in_cache(file_name)
+                expected_file_size = item[2]["file_size"]
+                state = cache.is_entry_in_cache(file_name, expected_file_size)
+
                 aligned = cache.is_aligned(file_name)
                 print("  +++ {} (available: {}, Aligned: {})".format(file_name, state,
                                         aligned))
@@ -575,9 +590,9 @@ class InputDataDownloader:
     def __init__(self):
         self._directory = "input_data_cache"
 
-    def download(self, name, address):
+    def download(self, name, address, file_size):
 
-        if self.is_entry_in_cache(name):
+        if self.is_entry_in_cache(name, file_size):
             return
 
         logging.debug("Download {} to {}".format(address, name))
@@ -591,8 +606,14 @@ class InputDataDownloader:
     def delete_cache_entry(self, name):
         os.remove(os.path.join(self._directory, name))
 
-    def is_entry_in_cache(self, name):
-        return os.path.isfile(os.path.join(self._directory, name))
+    def is_entry_in_cache(self, name, file_size):
+        path = os.path.join(self._directory, name)
+        if not os.path.isfile(path):
+            return False
+
+        actual_file_size = os.path.getsize(path)
+
+        return actual_file_size == file_size
 
     def is_aligned(self, name):
         return os.path.isfile("{}/{}.json".format(alignment_directory, name))
