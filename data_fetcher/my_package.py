@@ -398,6 +398,9 @@ class EbiSraSample:
         self.input_data_in_cache = True
 
     def download(self):
+
+        logging.debug("download sample {}".format(self.get_name()))
+
         metagenomes = self.get_mgrast_metagenomes()
         for item in metagenomes:
             metagenome = MgRastMetagenome(item)
@@ -457,8 +460,10 @@ class Command:
             print("show-sample")
             print("align-sample")
             print("align-samples")
+            print("align-samples-in-process")
             print("download-sample")
             print("download-samples")
+            print("download-samples-in-process")
 
             return
 
@@ -478,6 +483,11 @@ class Command:
         elif command == "download-samples":
             self.download_samples()
 
+        elif command == "download-samples-in-process":
+            while True:
+                self.download_samples()
+                time.sleep(5)
+
         elif command == "align-sample":
             self.align_sample()
 
@@ -487,6 +497,10 @@ class Command:
         elif command == "align-samples":
             self.align_samples()
 
+        elif command == "align-samples-in-process":
+            while True:
+                self.align_samples()
+                time.sleep(5)
 
     def purge(self):
         samples = self.get_samples()
