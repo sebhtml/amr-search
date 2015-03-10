@@ -377,6 +377,9 @@ class EbiSraSample:
         # TODO this has a linear time complexity.
         # to do better than this, we probably want to use redis or mongodb..
         # anyway..
+
+        self.input_data_in_cache = True
+
         with open("metagenome_paths.txt") as f:
             for line in f:
                 tokens = line.split()
@@ -393,9 +396,6 @@ class EbiSraSample:
 
                     if not available:
                         self.input_data_in_cache = False
-                        return
-
-        self.input_data_in_cache = True
 
     def download(self):
 
