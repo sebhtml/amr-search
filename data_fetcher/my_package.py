@@ -1,4 +1,5 @@
 
+import time
 import requests
 import os
 import xml.etree.ElementTree
