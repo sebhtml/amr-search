@@ -358,6 +358,30 @@ class EbiSraSample:
 
         self._check_data()
 
+        self._get_body_site()
+
+    def _get_body_site(self):
+        endpoint = "http://www.ebi.ac.uk/ena/data/view/{}&display=xml".format(self.get_name())
+
+        request = requests.get(endpoint)
+
+        if request.status_code != httplib.OK:
+            raise Exception("Invalid code")
+
+        content = request.text
+
+        dictionnary = xmltodict.parse(content)
+
+        items = dictionnary["ROOT"]["SAMPLE"]["SAMPLE_ATTRIBUTES"]["SAMPLE_ATTRIBUTE"]
+
+        for item in items:
+            tag = item["TAG"]
+            value = item["VALUE"]
+
+            if tag == "body site":
+                self.site = value
+                break
+
     def get_site(self):
         return self.site
 
@@ -659,4 +683,10 @@ class InputDataDownloader:
         return actual_file_size == file_size
 
     def is_aligned(self, name):
-        return os.path.isfile("{}/{}.json".format(alignment_directory, name))
+        path = "{}/{}.json".format(alignment_directory, name)
+        if not os.path.isfile(path):
+            return False
+        if os.path.getsize(path) == 0:
+            return False
+
+        return True
