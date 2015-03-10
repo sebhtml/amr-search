@@ -289,11 +289,14 @@ class MgRastMetagenome:
 
         items = self.get_uploaded_files()
 
+        if not os.path.isdir(alignment_directory):
+            os.mkdir(alignment_directory)
+
+
         for item in items:
             file_name = item[0]
 
-            if not os.path.isdir(alignment_directory):
-                os.mkdir(alignment_directory)
+            logging.debug("Aligning data file {}".format(file_name))
 
             with open("{}/{}.json".format(alignment_directory, file_name), "w") as out:
                 process = subprocess.Popen(["./microarray_tools/amr_search.rb",
