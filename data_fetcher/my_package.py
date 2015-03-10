@@ -299,7 +299,7 @@ class MgRastMetagenome:
 
             with open("{}/{}.json".format(alignment_directory, file_name), "w") as out:
                 process = subprocess.Popen(["./microarray_tools/amr_search.rb",
-                                "input_data_cache/mgm4478644.3.050.1.upload.fastq"], stdout = out, stderr= subprocess.PIPE)
+                                "input_data_cache/{}".format(file_name)], stdout = out, stderr= subprocess.PIPE)
 
                 stdout, stderr = process.communicate()
 
