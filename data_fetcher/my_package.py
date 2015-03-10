@@ -286,9 +286,6 @@ class MgRastMetagenome:
 
     def align(self):
 
-
-        self.download()
-
         items = self.get_uploaded_files()
 
         for item in items:
@@ -412,7 +409,14 @@ class EbiSraSample:
     def align(self):
 
         if self.is_aligned():
+            logging.debug("{} is already aligned".format(self.get_name()))
             return
+
+        if not self.get_state():
+            logging.debug("{} is not available locally".format(self.get_name()))
+            return
+
+        logging.debug("OK. aligning {}".format(self.get_name()))
 
         metagenomes = self.get_mgrast_metagenomes()
         for item in metagenomes:
@@ -479,6 +483,10 @@ class Command:
 
         elif command == "purge":
             self.purge()
+
+        elif command == "align-samples":
+            self.align_samples()
+
 
     def purge(self):
         samples = self.get_samples()
@@ -585,6 +593,12 @@ class Command:
 
         print(table)
 
+    def align_samples(self):
+
+        samples = self.get_samples()
+        for sample in samples:
+            sample_object = EbiSraSample(sample)
+            sample_object.align()
 
 class InputDataDownloader:
     def __init__(self):
@@ -604,7 +618,8 @@ class InputDataDownloader:
             stdout, stderr = process.communicate()
 
     def delete_cache_entry(self, name):
-        os.remove(os.path.join(self._directory, name))
+        if os.path.isfile(os.path.join(alignment_directory, name)):
+            os.remove(os.path.join(self._directory, name))
 
     def is_entry_in_cache(self, name, file_size):
         path = os.path.join(self._directory, name)
