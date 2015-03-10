@@ -440,6 +440,9 @@ class EbiSraSample:
         return False
 
     def purge_input_data(self):
+
+        logging.debug("Purging sample input data for {}".format(self.get_name()))
+
         metagenomes = self.get_mgrast_metagenomes()
         for item in metagenomes:
             metagenome = MgRastMetagenome(item)
@@ -461,10 +464,11 @@ class Command:
             print("show-sample")
             print("align-sample")
             print("align-samples")
-            print("align-samples-in-process")
             print("download-sample")
             print("download-samples")
-            print("download-samples-in-process")
+            print("align-samples-in-process    -      align samples in a separate process")
+            print("download-samples-in-process    -      download samples in a separate process")
+            print("purge-in-process         -      purge samples in a separate process")
 
             return
 
@@ -495,6 +499,11 @@ class Command:
         elif command == "purge":
             self.purge()
 
+        elif command == "purge-in-process":
+            while True:
+                self.purge()
+                time.sleep(5)
+
         elif command == "align-samples":
             self.align_samples()
 
@@ -509,7 +518,8 @@ class Command:
         for sample in samples:
             sample = EbiSraSample(sample)
             if sample.is_aligned():
-                sample.purge_input_data()
+                if sample.get_state():
+                    sample.purge_input_data()
 
     def align_sample(self):
         if len(sys.argv) != 3:
@@ -633,7 +643,7 @@ class InputDataDownloader:
             stdout, stderr = process.communicate()
 
     def delete_cache_entry(self, name):
-        if os.path.isfile(os.path.join(alignment_directory, name)):
+        if os.path.isfile(os.path.join(self._directory, name)):
             os.remove(os.path.join(self._directory, name))
 
     def is_entry_in_cache(self, name, file_size):
