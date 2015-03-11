@@ -271,7 +271,7 @@ class MgRastMetagenome:
             if not the_file_exists:
                 return False
 
-        return True 
+        return True
 
     def is_aligned(self):
 
@@ -436,7 +436,7 @@ class EbiSraSample:
             metagenome.download()
 
         self.input_data_in_cache = True
- 
+
     def align(self):
 
         if self.is_aligned():
@@ -552,13 +552,29 @@ class Command:
         if len(sys.argv) != 3:
             print("show-sample: needs a sample name!")
             return
-    
+
         sample_name = sys.argv[2]
 
         sample = EbiSraSample(sample_name)
         sample.align()
 
+    def _not_enough_free_space(self):
+        mount_point = "/space2"
+        vfs = FileSystem(mount_point)
+
+        free_bytes = vfs.get_free_byte_count()
+
+        # 50 GiB
+        minimum = 50 * 1024 * 1024 * 1024
+
+        return free_bytes < minimum
+
     def download_samples(self):
+
+        if self._not_enough_free_space():
+            logging.debug("not enough free space...")
+            return
+
         samples = self.get_samples()
 
         for sample_name in samples:
@@ -693,3 +709,20 @@ class InputDataDownloader:
             return False
 
         return True
+
+class FileSystem:
+    def __init__(self, path):
+        self._path = path
+
+    def get_free_byte_count(self):
+        data = os.statvfs(self._path)
+        block_size = data.f_bsize
+        free_block_count = data.f_bavail
+
+# >>> import os
+# >>> os.statvfs("/space2")
+# posix.statvfs_result(f_bsize=4096, f_frsize=4096, f_blocks=6527485956, f_bfree=390162322, f_bavail=62478226, f_files=409600000, f_ffree=404034293, f_favail=404034293, f_flag=4096, f_namemax=255)
+
+        byte_count = free_block_count * block_size
+
+        return byte_count
