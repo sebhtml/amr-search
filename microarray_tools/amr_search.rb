@@ -70,24 +70,22 @@ total = 0
 # \see http://ruby.bastardsbook.com/chapters/external-programs/
 #
 if not File.exists? output or not reuse_files
-    Open3.popen3(command) do |stdin, stdout, stderr, wait_thr|
+    #Open3.popen3(command) do |stdin, stdout, stderr, wait_thr|
+    pipe_stdout, pipe_stderr, status = Open3.capture3(command)
 
         # close stdin to avoid the system from hanging for eternity.
-        stdin.close
+#stdin.close
 
-        pipe_output = stdout.read
-        STDERR.puts pipe_output
-        pipe_output = stderr.read
-        STDERR.puts pipe_output
+    STDERR.puts pipe_stdout
+    STDERR.puts pipe_stderr
 
 #Matching query sequences: 19 of 672090 (0.00%)
-        pipe_output.split("\n").each do |line|
-            tokens = line.split
-            if tokens[0] == "Matching"
-                aligned = tokens[3]
-                total = tokens[5]
-                STDERR.puts "found #{aligned}/#{total}"
-            end
+    pipe_stderr.split("\n").each do |line|
+        tokens = line.split
+        if tokens[0] == "Matching"
+            aligned = tokens[3]
+            total = tokens[5]
+            STDERR.puts "found #{aligned}/#{total}"
         end
     end
 
