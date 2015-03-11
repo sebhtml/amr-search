@@ -571,13 +571,14 @@ class Command:
 
     def download_samples(self):
 
-        if self._not_enough_free_space():
-            logging.debug("not enough free space...")
-            return
-
         samples = self.get_samples()
 
         for sample_name in samples:
+
+            if self._not_enough_free_space():
+                logging.debug("not enough free space...")
+                return
+
             sample = EbiSraSample(sample_name)
 
             # only download those that are not aligned
