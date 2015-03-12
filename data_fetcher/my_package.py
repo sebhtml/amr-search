@@ -11,6 +11,7 @@ import prettytable
 import requests_cache
 import httplib
 import subprocess
+import procfs
 
 import xmltodict
 
@@ -496,6 +497,7 @@ class Command:
             print("align-samples-in-process    -      align samples in a separate process")
             print("download-samples-in-process    -      download samples in a separate process")
             print("purge-in-process         -      purge samples in a separate process")
+            print("drop-caches          -   drop file system cache (pagecache, dentries, inodes)")
 
             return
 
@@ -505,6 +507,9 @@ class Command:
 
         if command == "list-samples":
             self.list_samples()
+
+        elif command == "drop-caches":
+            self.drop_caches()
 
         elif command == "show-sample":
             self.show_sample()
@@ -538,6 +543,10 @@ class Command:
             while True:
                 self.align_samples()
                 time.sleep(5)
+
+    def drop_caches(self):
+        fs = FileSystem("/")
+        fs.drop_caches()
 
     def purge(self):
         samples = self.get_samples()
@@ -727,3 +736,12 @@ class FileSystem:
         byte_count = free_block_count * block_size
 
         return byte_count
+
+    def drop_caches(self):
+        proc = procfs.Proc()
+
+        self._update('/proc/sys/vm/drop_caches', '3\n')
+        self._update('/proc/sys/vm/drop_caches', '0\n')
+
+    def _update(self, path, content):
+        return
