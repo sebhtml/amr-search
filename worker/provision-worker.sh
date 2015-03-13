@@ -50,6 +50,6 @@ scp $ssh_options -i ~/magellan.pem -r ~/ardm-assets $user@$address:
 cat worker/install-requirements.sh | ssh $ssh_options -i ~/magellan.pem $user@$address
 
 # start the daemon.
-nohup ./data_fetcher/analysis_engine.py run-daemon &
+nohup ./data_fetcher/analysis_engine.py run-daemon &> log &
 
 echo "Provisioned instance $id.."
