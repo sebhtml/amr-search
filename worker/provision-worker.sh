@@ -1,16 +1,18 @@
 #!/bin/bash
 
 user=ubuntu
-ssh_options="-o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -i ~/magellan.pem"
+ssh_options="-o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -i $HOME/magellan.pem"
 
 # create an instance
 # Ubuntu 14.04
 # i2.2xlarge.sd is 20
 nova boot --flavor i2.2xlarge.sd --image a45ceb7b-cd09-4dd3-a9bf-e2acf0376051 --key-name Magellan \
-                          --security-groups default ardm-worker-123 &> output
+                          --security-groups default name-1234 &> output
 
 # wait for the instance to be active
 id=$(grep " id " output | awk '{print $4}')
+
+nova rename $id ardm-worker-$id
 
 while test $(nova show $id | grep ACTIVE | wc -l) -ne 1
 do
@@ -32,14 +34,14 @@ echo "instance $id has address $address"
 # In an ideal world this is not required.
 while true
 do
-    ssh $ssh_options -i ~/magellan.pem $user@$address date &> /dev/null
+    ssh $ssh_options $user@$address date
     exit_status=$?
 
     if test $exit_status -eq 0
     then
         break
     fi
-done
+done &> boot-$id.log
 
 echo "instance $id is ready"
 
