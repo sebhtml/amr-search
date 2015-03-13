@@ -451,6 +451,8 @@ class EbiSraSample:
 
     def download(self):
 
+        warehouse = Warehouse.get_singleton()
+
         # lock the sample before downloading.
         # alignment is a dependency anyway.
         if not warehouse.lock(self.get_name()):
