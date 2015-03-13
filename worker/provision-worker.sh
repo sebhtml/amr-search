@@ -52,6 +52,6 @@ scp $ssh_options -r ~/ardm-assets $user@$address:
 cat worker/install-requirements.sh | ssh $ssh_options $user@$address
 
 # start the daemon.
-ssh $ssh_options $user@$address "nohup /mnt/amr-search/data_fetcher/analysis_engine.py run-daemon &> /mnt/log &"
+ssh $ssh_options $user@$address "nohup /mnt/worker/amr-search/data_fetcher/analysis_engine.py run-daemon &> /mnt/worker/log &"
 
 echo "Provisioned instance $id.."

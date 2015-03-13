@@ -17,7 +17,7 @@ import multiprocessing
 
 import xmltodict
 
-working_directory="/mnt"
+working_directory="/mnt/worker"
 
 alignment_directory = "alignments"
 

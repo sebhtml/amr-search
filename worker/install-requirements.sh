@@ -1,6 +1,8 @@
 #!/bin/bash
 
-cd /mnt
+sudo mkdir -p /mnt/worker
+chown ubuntu:ubuntu /mnt/worker
+cd /mnt/worker
 
 sudo apt-get update -y
 sudo apt-get install -y ruby make gcc python-pip zlib1g-dev git
