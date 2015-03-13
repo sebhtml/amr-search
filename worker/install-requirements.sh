@@ -1,8 +1,9 @@
 #!/bin/bash
 
-sudo mkdir -p /mnt/worker
-chown ubuntu:ubuntu /mnt/worker
-cd /mnt/worker
+main_directory=/mnt/worker
+sudo mkdir -p $main_directory
+sudo chown ubuntu:ubuntu $main_directory
+cd $main_directory
 
 sudo apt-get update -y
 sudo apt-get install -y ruby make gcc python-pip zlib1g-dev git
@@ -14,7 +15,7 @@ source ardm-virtualenv/bin/activate
 
 git clone https://github.com/sebhtml/amr-search.git
 cd amr-search
-ln -s ~/ardm-assets
+ln -s $main_directory/ardm-assets
 pip install -r data_fetcher/requirements.txt
 
 # vsearch/1.1.1

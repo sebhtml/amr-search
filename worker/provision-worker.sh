@@ -45,11 +45,11 @@ done &> boot-$id.log
 
 echo "instance $id is ready"
 
-# copy private assets
-scp $ssh_options -r ~/ardm-assets $user@$address:
-
 # install software
 cat worker/install-requirements.sh | ssh $ssh_options $user@$address
+
+# copy private assets
+scp $ssh_options -r ~/ardm-assets $user@$address:/mnt/worker
 
 # start the daemon.
 ssh $ssh_options $user@$address "nohup /mnt/worker/amr-search/data_fetcher/analysis_engine.py run-daemon &> /mnt/worker/log &"
