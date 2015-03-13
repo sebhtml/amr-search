@@ -592,7 +592,7 @@ class Command:
         sample.align()
 
     def _not_enough_free_space(self):
-        mount_point = "/space2"
+        mount_point = "/mnt"
         vfs = FileSystem(mount_point)
 
         free_bytes = vfs.get_free_byte_count()
