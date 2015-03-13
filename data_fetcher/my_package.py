@@ -592,6 +592,9 @@ class Command:
         download_process = multiprocessing.Process(target=self.download_samples_in_process)
         download_process.start()
 
+        # avoid the sqlite error: OperationalError: database is locked
+        time.sleep(5)
+
         align_process = multiprocessing.Process(target=self.align_samples_in_process)
         align_process.start()
 
