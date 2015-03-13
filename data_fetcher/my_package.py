@@ -17,6 +17,8 @@ import multiprocessing
 
 import xmltodict
 
+working_directory="/mnt"
+
 alignment_directory = "alignments"
 
 class SRAFetcher:
@@ -620,7 +622,7 @@ class Command:
         sample.align()
 
     def _not_enough_free_space(self):
-        mount_point = "/mnt"
+        mount_point = working_directory
         vfs = FileSystem(mount_point)
 
         free_bytes = vfs.get_free_byte_count()

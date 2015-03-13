@@ -1,5 +1,7 @@
 #!/bin/bash
 
+cd /mnt
+
 sudo apt-get update -y
 sudo apt-get install -y ruby make gcc python-pip zlib1g-dev git
 
