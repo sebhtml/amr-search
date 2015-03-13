@@ -13,6 +13,7 @@ import requests_cache
 import httplib
 import subprocess
 import procfs
+import multiprocessing
 
 import xmltodict
 
@@ -522,6 +523,7 @@ class Command:
             print("download-samples-in-process    -      download samples in a separate process")
             print("purge-in-process         -      purge samples in a separate process")
             print("drop-caches          -   drop file system cache (pagecache, dentries, inodes)")
+            print("run-daemon       -  download, align, and purge in parallel")
 
             return
 
@@ -545,9 +547,10 @@ class Command:
             self.download_samples()
 
         elif command == "download-samples-in-process":
-            while True:
-                self.download_samples()
-                time.sleep(5)
+            self.download_samples_in_process()
+
+        elif command == "run-daemon":
+            self.run_daemon()
 
         elif command == "align-sample":
             self.align_sample()
@@ -556,21 +559,46 @@ class Command:
             self.purge()
 
         elif command == "purge-in-process":
-            while True:
-                self.purge()
-                time.sleep(5)
+            self.purge_in_process()
 
         elif command == "align-samples":
             self.align_samples()
 
         elif command == "align-samples-in-process":
-            while True:
-                self.align_samples()
-                time.sleep(5)
+            self.align_samples_in_process()
+
+    def purge_in_process(self):
+        while True:
+            self.purge()
+            time.sleep(5)
+
+    def align_samples_in_process(self):
+        while True:
+            self.align_samples()
+            time.sleep(5)
+
+    def download_samples_in_process(self):
+        while True:
+            self.download_samples()
+            time.sleep(5)
 
     def drop_caches(self):
         fs = FileSystem("/")
         fs.drop_caches()
+
+    def run_daemon(self):
+        download_process = multiprocessing.Process(target=self.download_samples_in_process)
+        download_process.start()
+
+        align_process = multiprocessing.Process(target=self.align_samples_in_process)
+        align_process.start()
+
+        purge_process = multiprocessing.Process(target=self.purge_in_process)
+        purge_process.start()
+
+        download_process.join()
+        align_process.join()
+        purge_process.join()
 
     def purge(self):
         samples = self.get_samples()
