@@ -2,6 +2,7 @@
 import time
 import requests
 import os
+import redis
 import xml.etree.ElementTree
 import json
 import logging
@@ -275,6 +276,9 @@ class MgRastMetagenome:
         return True
 
     def is_aligned(self):
+        return self._is_aligned_redis()
+
+    def _is_aligned_vfs(self):
 
         items = self.get_uploaded_files()
         cache = InputDataDownloader()
@@ -286,13 +290,31 @@ class MgRastMetagenome:
 
         return True
 
+    def _is_aligned_redis(self):
+
+        items = self.get_uploaded_files()
+        warehouse = Warehouse.get_singleton()
+
+        for item in items:
+            file_name = item[0]
+            if not warehouse.is_aligned(file_name):
+                return False
+
+        return True
+
     def align(self):
 
         items = self.get_uploaded_files()
 
+        # get token from warehouse
+        warehouse = Warehouse.get_singleton()
+
+        if not warehouse.lock(self.get_identifier()):
+            logging.debug("can not lock {}, skipping".format(self.get_identifier()))
+            return
+
         if not os.path.isdir(alignment_directory):
             os.mkdir(alignment_directory)
-
 
         for item in items:
             file_name = item[0]
@@ -304,6 +326,8 @@ class MgRastMetagenome:
                                 "input_data_cache/{}".format(file_name)], stdout = out, stderr= subprocess.PIPE)
 
                 stdout, stderr = process.communicate()
+
+            warehouse.push_alignment(file_name)
 
     def purge(self):
 
@@ -660,6 +684,9 @@ class Command:
 
     def list_samples(self):
 
+        aligned_count = 0
+        total = 0
+
         samples = self.get_samples()
         table = prettytable.PrettyTable(["sample", "site", "input_data_available", "aligned", "Summary"])
         for sample in samples:
@@ -672,7 +699,15 @@ class Command:
 
             table.add_row([sample, site, state, aligned, has_summary])
 
+            if aligned:
+                aligned_count += 1
+
+            total += 1
+
         print(table)
+
+        print("Total count: {}".format(total))
+        print("Aligned count: " + str(aligned_count))
 
     def align_samples(self):
 
@@ -745,3 +780,37 @@ class FileSystem:
 
     def _update(self, path, content):
         return
+
+# all the redis logic is in here
+class Warehouse:
+    def __init__(self, redis_address):
+        self._redis = redis.StrictRedis(host=redis_address, port=6379, db=0)
+
+        self._redis.setnx('schema_version', '1')
+
+    @staticmethod
+    def get_singleton():
+        address = '10.1.28.25'
+        return Warehouse(address)
+
+    def is_aligned(self, file_name):
+        redis_key = self._get_key(file_name)
+        return self._redis.exists(redis_key)
+
+    def lock(self, name):
+        return self._redis.setnx(",".join(["lock", name]), True)
+
+    def _get_key(self, file_name):
+        return ",".join(["alignments", file_name + ".json"])
+
+    def push_alignment(self, file_name):
+        # check if the file is here locally...
+        path = os.path.join("alignments", file_name + ".json")
+        redis_key = self._get_key(file_name)
+
+        if not self._redis.exists(redis_key):
+            if os.path.isfile(path) and os.path.getsize(path) > 0:
+                logging.debug("Warehouse check SUCCESS {} is in VFS, push to redis with key {}".format(path, redis_key))
+                self._redis.setnx(redis_key, open(path).read())
+
+

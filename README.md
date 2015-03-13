@@ -10,6 +10,18 @@ The microarray probe data is not available publicly.
 git@bitbucket.org:sebhtml/ardm-assets.git
 
 
+analysis engine
+===============
+
+./data_fetcher/analysis_engine.py
+
+Architecture
+============
+
+    ardm-redis      10.1.28.25
+    ardm-worker-0   10.1.28.30
+
+
 data_fetcher
 ============
 
