@@ -3,10 +3,13 @@
 user=ubuntu
 ssh_options="-o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no"
 
+# create an instance
+# Ubuntu 14.04
 # i2.2xlarge.sd is 20
 nova boot --flavor i2.2xlarge.sd --image a45ceb7b-cd09-4dd3-a9bf-e2acf0376051 --key-name Magellan \
                           --security-groups default ardm-foo &> output
 
+# wait for the instance to be active
 id=$(grep " id " output | awk '{print $4}')
 
 while test $(nova show $id | grep ACTIVE | wc -l) -ne 1
@@ -40,6 +43,13 @@ done
 
 echo "instance $id is ready"
 
+# copy private assets
 scp $ssh_options -i ~/magellan.pem -r ~/ardm-assets $user@$address:
 
+# install software
 cat worker/install-requirements.sh | ssh $ssh_options -i ~/magellan.pem $user@$address
+
+# start the daemon.
+nohup ./data_fetcher/analysis_engine.py run-daemon &
+
+echo "Provisioned instance $id.."
