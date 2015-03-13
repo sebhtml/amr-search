@@ -312,10 +312,6 @@ class MgRastMetagenome:
         # get token from warehouse
         warehouse = Warehouse.get_singleton()
 
-        if not warehouse.lock(self.get_identifier()):
-            logging.debug("can not lock {}, skipping".format(self.get_identifier()))
-            return
-
         if not os.path.isdir(alignment_directory):
             os.mkdir(alignment_directory)
 
@@ -454,6 +450,12 @@ class EbiSraSample:
                         self.input_data_in_cache = False
 
     def download(self):
+
+        # lock the sample before downloading.
+        # alignment is a dependency anyway.
+        if not warehouse.lock(self.get_name()):
+            logging.debug("can not lock {}, skipping".format(self.get_identifier()))
+            return
 
         logging.debug("download sample {}".format(self.get_name()))
 
