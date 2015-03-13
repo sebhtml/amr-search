@@ -456,7 +456,7 @@ class EbiSraSample:
         # lock the sample before downloading.
         # alignment is a dependency anyway.
         if not warehouse.lock(self.get_name()):
-            logging.debug("can not lock {}, skipping".format(self.get_identifier()))
+            logging.debug("can not lock {}, skipping".format(self.get_name()))
             return
 
         logging.debug("download sample {}".format(self.get_name()))
