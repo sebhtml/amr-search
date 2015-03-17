@@ -61,6 +61,7 @@ command = "#{aligner} \
     --target_cov 0.90 \
     --blast6out #{output} \
     --maxaccepts 4 \
+    --strand both \
     "
 
 aligned = 0
