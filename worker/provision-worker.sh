@@ -54,4 +54,6 @@ scp $ssh_options -r ~/ardm-assets $user@$address:/mnt/worker
 # start the daemon.
 ssh $ssh_options $user@$address /mnt/worker/amr-search/worker/start.sh
 
-echo "Provisioned instance $id.."
+echo "Provisioned instance"
+
+echo "-> uuid= $id addr= $address status= run-daemon"
