@@ -575,17 +575,26 @@ class Command:
 
     def purge_in_process(self):
         while True:
-            self.purge()
+            try:
+                self.purge()
+            except Exception as e:
+                print(str(e))
             time.sleep(5)
 
     def align_samples_in_process(self):
         while True:
-            self.align_samples()
+            try:
+                self.align_samples()
+            except Exception as e:
+                print(str(e))
             time.sleep(5)
 
     def download_samples_in_process(self):
         while True:
-            self.download_samples()
+            try:
+                self.download_samples()
+            except Exception as e:
+                print(str(e))
             time.sleep(5)
 
     def drop_caches(self):
