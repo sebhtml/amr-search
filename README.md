@@ -47,3 +47,10 @@ Using Ruby 2.2.0
 
 To run tests, run ./run_unit_tests.rb.
 
+
+
+REST API
+--------
+
+- list samples GET http://140.221.67.8/samples
+- view one sample GET http://140.221.67.8/samples/SRS016095
