@@ -51,7 +51,9 @@ def sample(sample_id):
     identifier = document["_id"]
     item["id"] = identifier
     item["link"] = request.url_root + "samples/{}".format(identifier)
-    item["hits"] = {}
+    item["hits"] = document["hits"]
+    item["total_number_of_sequences"] = document["total_number_of_sequences"]
+    item["number_of_matched_sequences"] = document["number_of_matched_sequences"]
 
     return json.dumps(item)
 
