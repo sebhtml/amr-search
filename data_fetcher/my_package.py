@@ -22,6 +22,22 @@ working_directory="/mnt/worker"
 
 alignment_directory = "alignments"
 
+def replace_dots(document):
+    for key in document.keys():
+        value = document[key]
+        if key.find(".") >= 0:
+            new_key = key.replace(".", "_dot_")
+
+            # add new key without the dot symbol (".")
+            document[new_key] = value
+
+            # remove old key that has a a dot (".")
+            del document[key]
+
+        # recursive call
+        if isinstance(value, dict):
+            replace_dots(value)
+
 class SRAFetcher:
     """
     This class is useful for downloading XML files for objects identified by SRA identifier.
@@ -584,6 +600,41 @@ class Command:
 
     def populate_mongodb(self):
         database = Database()
+        redis = Warehouse.get_singleton()
+
+        sample_collection = database.get_sample_collection()
+        alignment_collection = database.get_alignments_collection()
+
+        for sample in sample_collection.find({}):
+
+            print(sample["_id"])
+            for metagenome in sample["metagenomes"]:
+                aligned = False
+                key = "{}.050.1.upload.fastq".format(metagenome)
+
+                cursor = alignment_collection.find({"_id": key})
+
+                if cursor.count():
+                    aligned = True
+
+                # try to pull it from redis
+                if not aligned:
+                    key2 = "alignments,{}.050.1.upload.fastq.json".format(metagenome)
+                    
+                    json_string = redis.get(key2)
+
+                    if json_string != None:
+                        #print("Found json for {}".format(key2))
+                        json_object = json.loads(json_string)
+
+                        # mongodb does not like dots
+                        replace_dots(json_object)
+                        json_object["_id"] = key
+
+                        alignment_collection.save(json_object)
+                        
+
+                print "         {} {}".format(metagenome, aligned)
 
     def purge_in_process(self):
         while True:
@@ -841,6 +892,8 @@ class FileSystem:
 
 # all the redis logic is in here
 class Warehouse:
+    _singleton = None
+
     def __init__(self, redis_address):
         self._redis = redis.StrictRedis(host=redis_address, port=6379, db=0)
 
@@ -849,7 +902,11 @@ class Warehouse:
     @staticmethod
     def get_singleton():
         address = '10.1.28.25'
-        return Warehouse(address)
+
+        if Warehouse._singleton == None:
+            Warehouse._singleton = Warehouse(address)
+
+        return Warehouse._singleton
 
     def is_aligned(self, file_name):
         redis_key = self._get_key(file_name)
@@ -860,6 +917,9 @@ class Warehouse:
 
     def _get_key(self, file_name):
         return ",".join(["alignments", file_name + ".json"])
+
+    def get(self, key):
+        return self._redis.get(key)
 
     def push_alignment(self, file_name):
         # check if the file is here locally...
@@ -886,4 +946,7 @@ class Database:
 
         return collection
 
+    def get_alignments_collection(self):
+
+        return self._mongo_connection[self._database_name]["alignments"]
 

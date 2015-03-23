@@ -4,6 +4,7 @@ import pymongo
 import redis
 import json
 
+# this code is not used.
 
 class Loader:
     def __init__(self, redis_address, mongodb_address):
