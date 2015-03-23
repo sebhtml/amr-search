@@ -607,6 +607,8 @@ class Command:
 
         for sample in sample_collection.find({}):
 
+            all_metagenomes_are_aligned = True
+
             print(sample["_id"])
             for metagenome in sample["metagenomes"]:
                 aligned = False
@@ -616,6 +618,8 @@ class Command:
 
                 if cursor.count():
                     aligned = True
+
+                print "         {} {}".format(metagenome, aligned)
 
                 # try to pull it from redis
                 if not aligned:
@@ -633,8 +637,33 @@ class Command:
 
                         alignment_collection.save(json_object)
                         
+                    all_metagenomes_are_aligned = False
 
-                print "         {} {}".format(metagenome, aligned)
+            if all_metagenomes_are_aligned:
+                sample["total_number_of_sequences"] = 0
+                sample["number_of_matched_sequences"] = 0
+                sample["hits"] = {}
+
+                for metagenome in sample["metagenomes"]:
+                    key = "{}.050.1.upload.fastq".format(metagenome)
+
+                    cursor = alignment_collection.find({"_id": key})
+                    
+                    document = cursor.next()
+                    print("count " + str(document["total_number_of_sequences"]))
+                    sample["total_number_of_sequences"] += int(document["total_number_of_sequences"])
+                    sample["number_of_matched_sequences"] += int(document["number_of_matched_sequences"])
+
+                    for key, value in document["hits"].iteritems():
+                        if key not in sample["hits"]:
+                            sample["hits"][key] = 0
+
+                        sample["hits"][key] += value
+
+                print("New sample:")
+                print(str(sample))
+
+                sample_collection.save(sample)
 
     def purge_in_process(self):
         while True:
