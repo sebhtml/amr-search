@@ -11,13 +11,9 @@ app = Flask(__name__)
 
 app.debug = True
 
-mongodb_address = "10.1.28.53"
+database = my_package.Database()
 
-mongo_connection = pymongo.MongoClient(mongodb_address, 27017)
-
-database_name = "ardm-database"
-sample_collection_name = "samples"
-sample_collection = mongo_connection[database_name][sample_collection_name]
+sample_collection = database.get_sample_collection()
 
 @app.route('/context')
 def context():

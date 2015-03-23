@@ -1,5 +1,6 @@
 
 import time
+import pymongo
 import requests
 import os
 import redis
@@ -523,6 +524,7 @@ class Command:
         if len(arguments) == 1:
             print("Please provide a sub-command:")
             print("list-samples")
+            print("populate-mongodb")
             print("purge            delete input data for samples that have alignments")
             print("show-sample")
             print("align-sample")
@@ -556,6 +558,9 @@ class Command:
         elif command == "download-samples":
             self.download_samples()
 
+        elif command == "populate-mongodb":
+            self.populate_mongodb()
+
         elif command == "download-samples-in-process":
             self.download_samples_in_process()
 
@@ -576,6 +581,9 @@ class Command:
 
         elif command == "align-samples-in-process":
             self.align_samples_in_process()
+
+    def populate_mongodb(self):
+        database = Database()
 
     def purge_in_process(self):
         while True:
@@ -862,5 +870,20 @@ class Warehouse:
             if os.path.isfile(path) and os.path.getsize(path) > 0:
                 logging.debug("Warehouse check SUCCESS {} is in VFS, push to redis with key {}".format(path, redis_key))
                 self._redis.setnx(redis_key, open(path).read())
+
+
+class Database:
+    def __init__(self):
+
+        self._mongodb_address = "10.1.28.53"
+        self._mongo_connection = pymongo.MongoClient(self._mongodb_address, 27017)
+        self._database_name = "ardm-database"
+        self._sample_collection_name = "samples"
+
+    def get_sample_collection(self):
+
+        collection = self._mongo_connection[self._database_name][self._sample_collection_name]
+
+        return collection
 
 
