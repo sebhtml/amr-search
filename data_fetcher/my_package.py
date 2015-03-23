@@ -387,6 +387,10 @@ class EbiSraSample:
 
         self._get_body_site()
 
+    @staticmethod
+    def get_samples(self):
+        return []
+
     def _get_body_site(self):
         endpoint = "http://www.ebi.ac.uk/ena/data/view/{}&display=xml".format(self.get_name())
 
