@@ -10,6 +10,7 @@ from flask import Flask
 app = Flask(__name__)
 
 app.debug = True
+app.debug = False
 
 database = my_package.Database()
 
