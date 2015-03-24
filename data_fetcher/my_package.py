@@ -1,5 +1,6 @@
 
 import time
+import csv
 from Bio import SeqIO
 import pymongo
 import requests
@@ -544,6 +545,7 @@ class Command:
             print("list-samples")
             print("populate-mongodb")
             print("import-microarray_v2_v3")
+            print("generate-matrix-hmp-ardm-v2-v3")
             print("purge            delete input data for samples that have alignments")
             print("show-sample")
             print("align-sample")
@@ -573,6 +575,8 @@ class Command:
 
         elif command == "show-sample":
             self.show_sample()
+        elif command == "generate-matrix-hmp-ardm-v2-v3":
+            self.generate_matrix_deliverable()
 
         elif command == "download-sample":
             self.download_sample()
@@ -623,8 +627,31 @@ class Command:
         handle.close()
 # ARDM_v2_and_v3.fasta
 
-    def dump_matrix_deliverable(self):
-        return 0
+    def generate_matrix_deliverable(self):
+        mongo = Database.get_singleton()
+        file_name = 'HMP-ARDM-AMR-matrix-deliverable.csv'
+        probes = []
+
+        for document in mongo.get_collection("probes").find({}):
+            probes.append(document["_id"])
+
+        with open(file_name, 'w') as f:
+            writer = csv.writer(f, delimiter=',')
+            writer.writerow(["Sample", "total_read_count", "mapped_read_count"] + probes)
+
+            for sample in mongo.get_collection("samples").find({}):
+                row = []
+                row.append(sample["_id"])
+                for probe in probes:
+                    count = 0
+                    if probe in sample["hits"]:
+                        count = sample["hits"][probe]
+
+                    row.append(count)
+
+                writer.writerow(row)
+
+        print("Wrote {}".format(file_name))
 
     def populate_mongodb(self):
         database = Database.get_singleton()
@@ -652,7 +679,7 @@ class Command:
                 # try to pull it from redis
                 if not aligned:
                     key2 = "alignments,{}.050.1.upload.fastq.json".format(metagenome)
-                    
+
                     json_string = redis.get(key2)
 
                     if json_string != None:
@@ -664,7 +691,7 @@ class Command:
                         json_object["_id"] = key
 
                         alignment_collection.save(json_object)
-                        
+
                     all_metagenomes_are_aligned = False
 
             if all_metagenomes_are_aligned:
@@ -676,7 +703,7 @@ class Command:
                     key = "{}.050.1.upload.fastq".format(metagenome)
 
                     cursor = alignment_collection.find({"_id": key})
-                    
+
                     document = cursor.next()
                     print("count " + str(document["total_number_of_sequences"]))
                     sample["total_number_of_sequences"] += int(document["total_number_of_sequences"])
