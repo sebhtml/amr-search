@@ -1,0 +1,108 @@
+<html>
+  <head>
+    <title>Antimicrobial resistance</title>
+    <script src="https://fb.me/react-0.13.1.js"></script>
+    <script src="https://fb.me/JSXTransformer-0.13.1.js"></script>
+    <script src="https://code.jquery.com/jquery-1.10.0.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/showdown/0.3.1/showdown.min.js"></script>
+  </head>
+  <body>
+    <div id="content"></div>
+    <script type="text/jsx">
+      // Your code here
+
+/* based on this tutorial: https://facebook.github.io/react/docs/tutorial.html */
+// tutorial8.js
+var data = [
+  {author: "Pete Hunt", text: "This is one comment"},
+  {author: "Jordan Walke", text: "This is *another* comment"}
+];
+
+var converter = new Showdown.converter();
+
+// tutorial5.js
+
+// tutorial10.js
+var SampleList = React.createClass({
+  render: function() {
+    var sampleNodes = this.props.data.map(function (sample) {
+      return (
+        <Sample id={sample.id} link={sample.link}>
+          {sample.link}
+        </Sample>
+      );
+    });
+    return (
+      <div className="commentList">
+        {sampleNodes}
+      </div>
+    );
+  }
+});
+
+
+var SampleForm = React.createClass({
+  render: function() {
+    return (
+      <div className="commentForm">
+        Hello, world! I am a SampleForm.
+      </div>
+    );
+  }
+});
+
+var SampleBox = React.createClass({
+  loadSamplesFromServer: function() {
+    $.ajax({
+      url: this.props.url,
+      dataType: 'json',
+      success: function(data) {
+        this.setState({data: data["samples"]});
+      }.bind(this),
+      error: function(xhr, status, err) {
+        console.error(this.props.url, status, err.toString());
+      }.bind(this)
+    });
+  },
+  getInitialState: function() {
+    return {data: []};
+  },
+  componentDidMount: function() {
+    this.loadSamplesFromServer();
+    setInterval(this.loadSamplesFromServer, this.props.pollInterval);
+  },
+  render: function() {
+    return (
+      <div className="commentBox">
+        <h1>Samples</h1>
+        <SampleList data={this.state.data} />
+        <SampleForm />
+      </div>
+    );
+  }
+});
+
+// tutorial4.js
+var Sample = React.createClass({
+  render: function() {
+    var rawMarkup = converter.makeHtml(this.props.children.toString());
+    return (
+      <div className="comment">
+        <h2 className="commentAuthor">
+          {this.props.id}
+        </h2>
+	<a href={this.props.link}>link</a>
+      </div>
+    );
+  }
+});
+
+React.render(
+  <SampleBox url="http://140.221.67.8/samples" pollInterval={2000} />,
+  document.getElementById('content')
+);
+
+
+    </script>
+  </body>
+</html>
