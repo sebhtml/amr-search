@@ -642,6 +642,9 @@ class Command:
             for sample in mongo.get_collection("samples").find({}):
                 row = []
                 row.append(sample["_id"])
+                row.append(sample["total_number_of_sequences"])
+                row.append(sample["number_of_matched_sequences"])
+
                 for probe in probes:
                     count = 0
                     if probe in sample["hits"]:
