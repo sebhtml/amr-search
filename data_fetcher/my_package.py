@@ -1,5 +1,6 @@
 
 import time
+from Bio import SeqIO
 import pymongo
 import requests
 import os
@@ -21,6 +22,7 @@ import xmltodict
 working_directory="/mnt/worker"
 
 alignment_directory = "alignments"
+microarray_probe_file = 'ARDM_v2_and_v3.fasta'
 
 def replace_dots(document):
     for key in document.keys():
@@ -541,6 +543,7 @@ class Command:
             print("Please provide a sub-command:")
             print("list-samples")
             print("populate-mongodb")
+            print("import-microarray_v2_v3")
             print("purge            delete input data for samples that have alignments")
             print("show-sample")
             print("align-sample")
@@ -564,6 +567,9 @@ class Command:
 
         elif command == "drop-caches":
             self.drop_caches()
+
+        elif command == "import-microarray_v2_v3":
+            self.import_microarray_v2_v3()
 
         elif command == "show-sample":
             self.show_sample()
@@ -598,8 +604,30 @@ class Command:
         elif command == "align-samples-in-process":
             self.align_samples_in_process()
 
+        else:
+            print("Unknown command {}".format(command))
+
+    def import_microarray_v2_v3(self):
+        mongo = Database.get_singleton()
+
+        collection = mongo.get_collection("probes")
+
+        handle = open(microarray_probe_file, "rU")
+        for record in SeqIO.parse(handle, "fasta") :
+            id = record.id
+            sequence = str(record.seq)
+
+            document = {"_id": id, "sequence": sequence}
+            collection.save(document)
+
+        handle.close()
+# ARDM_v2_and_v3.fasta
+
+    def dump_matrix_deliverable(self):
+        return 0
+
     def populate_mongodb(self):
-        database = Database()
+        database = Database.get_singleton()
         redis = Warehouse.get_singleton()
 
         sample_collection = database.get_sample_collection()
@@ -962,6 +990,9 @@ class Warehouse:
 
 
 class Database:
+
+    _singleton = None
+
     def __init__(self):
 
         self._mongodb_address = "10.1.28.53"
@@ -970,12 +1001,20 @@ class Database:
         self._sample_collection_name = "samples"
 
     def get_sample_collection(self):
-
-        collection = self._mongo_connection[self._database_name][self._sample_collection_name]
-
-        return collection
+        return self.get_collection(self._sample_collection_name)
 
     def get_alignments_collection(self):
+        return self.get_collection("alignments")
 
-        return self._mongo_connection[self._database_name]["alignments"]
+    def get_connection(self):
+        return self._mongo_connection
 
+    @staticmethod
+    def get_singleton():
+        if Database._singleton == None:
+            Database._singleton = Database()
+
+        return Database._singleton
+
+    def get_collection(self, name):
+        return self.get_connection()[self._database_name][name]
