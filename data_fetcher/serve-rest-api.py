@@ -7,7 +7,9 @@ from flask import request
 from flask import abort
 
 from flask import Flask
+
 app = Flask(__name__)
+cors = CORS(app)
 
 app.debug = True
 app.debug = False
