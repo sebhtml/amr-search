@@ -84,8 +84,8 @@ if not File.exists? output or not reuse_files
     pipe_stderr.split("\n").each do |line|
         tokens = line.split
         if tokens[0] == "Matching"
-            aligned = tokens[3]
-            total = tokens[5]
+            aligned = tokens[3].to_i
+            total = tokens[5].to_i
             STDERR.puts "found #{aligned}/#{total}"
         end
     end
