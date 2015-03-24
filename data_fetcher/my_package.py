@@ -674,6 +674,12 @@ class Command:
                 if cursor.count():
                     aligned = True
 
+                document = cursor.next()
+
+                # fallback on a different code path.
+                if int(document["total_number_of_sequences"]) == 0:
+                    aligned = False
+
                 print "         {} {}".format(metagenome, aligned)
 
                 # try to pull it from redis
@@ -715,8 +721,8 @@ class Command:
 
                         sample["hits"][key] += value
 
-                print("New sample:")
-                print(str(sample))
+                #print("New sample:")
+                #print(str(sample))
 
                 sample_collection.save(sample)
 
